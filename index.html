@@ -1,1 +1,3146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Function Limit Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .calculator {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        input[type="text"], select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .calculate-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .examples {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .examples h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .example-list {
+            list-style-type: none;
+        }
+        
+        .example-list li {
+            padding: 8px 0;
+            color: #555;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .example-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .example-list code {
+            background-color: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .result-section {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .result-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-content {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            color: #333;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        .limit-expression {
+            font-size: 1.4em;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            font-family: 'Cambria', serif;
+        }
+        
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        
+        .step {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .step:last-child {
+            border-bottom: none;
+        }
+        
+        .step-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Function Limit Calculator</h1>
+        <p class="subtitle">Calculate the limit of a function as x approaches a specific value</p>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="functionInput">Enter Function f(x):</label>
+                <input type="text" id="functionInput" placeholder="e.g., (x^2 - 1)/(x - 1)" value="(x^2 - 1)/(x - 1)">
+                <small>Use 'x' as variable, ^ for power, sqrt() for square root</small>
+            </div>
+            
+            <div class="input-group">
+                <label for="limitValue">Limit x →</label>
+                <input type="text" id="limitValue" placeholder="e.g., 1, infinity, -infinity" value="1">
+                <small>Enter number, 'infinity', or '-infinity'</small>
+            </div>
+        </div>
+        
+        <button class="calculate-btn" onclick="calculateLimit()">
+            Calculate Limit
+        </button>
+        
+        <div class="examples">
+            <h3>Example Functions:</h3>
+            <ul class="example-list">
+                <li><code>sin(x)/x</code> as x → 0 (limit = 1)</li>
+                <li><code>(x^2 - 4)/(x - 2)</code> as x → 2 (limit = 4)</li>
+                <li><code>1/x</code> as x → 0 (limit does not exist)</li>
+                <li><code>(3*x^2 + 2*x - 1)/(x^2 + 5)</code> as x → infinity (limit = 3)</li>
+                <li><code>sqrt(x + 1) - 1</code> as x → 0 (limit = 0)</li>
+            </ul>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Calculating limit...</p>
+        </div>
+        
+        <div class="result-section" id="resultSection" style="display: none;">
+            <h3>📊 Limit Calculation Results</h3>
+            <div class="limit-expression" id="limitExpression"></div>
+            <div class="result-content" id="resultContent"></div>
+        </div>
+    </div>
 
+    <script>
+        // Safe evaluation of mathematical expressions
+        function evaluateFunction(funcStr, x) {
+            // Replace common math notations
+            let expression = funcStr
+                .replace(/\^/g, '**')
+                .replace(/sqrt\(/g, 'Math.sqrt(')
+                .replace(/sin\(/g, 'Math.sin(')
+                .replace(/cos\(/g, 'Math.cos(')
+                .replace(/tan\(/g, 'Math.tan(')
+                .replace(/log\(/g, 'Math.log10(')
+                .replace(/ln\(/g, 'Math.log(')
+                .replace(/abs\(/g, 'Math.abs(')
+                .replace(/exp\(/g, 'Math.exp(')
+                .replace(/pi/g, 'Math.PI')
+                .replace(/e/g, 'Math.E');
+            
+            // Replace x with its value
+            expression = expression.replace(/x/g, `(${x})`);
+            
+            try {
+                // Safe evaluation using Function constructor
+                return Function(`'use strict'; return (${expression})`)();
+            } catch (error) {
+                throw new Error(`Error evaluating function at x = ${x}: ${error.message}`);
+            }
+        }
+        
+        // Check if value is approximately equal
+        function isApproximatelyEqual(a, b, tolerance = 1e-10) {
+            if (Math.abs(a - b) < tolerance) return true;
+            if (Math.abs(a) > 1e10 || Math.abs(b) > 1e10) {
+                return Math.abs((a - b) / Math.max(Math.abs(a), Math.abs(b))) < tolerance;
+            }
+            return false;
+        }
+        
+        // Approach limit from left side
+        function approachFromLeft(funcStr, xApproach, tolerance = 1e-10, maxIterations = 1000) {
+            const sequence = [];
+            let h = 0.1;
+            
+            for (let i = 0; i < maxIterations; i++) {
+                const x = xApproach - h;
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                    
+                    if (sequence.length > 2) {
+                        const lastThree = sequence.slice(-3).map(p => p.y);
+                        const converged = lastThree.every((val, idx, arr) => 
+                            idx === arr.length - 1 ? true : Math.abs(val - arr[idx + 1]) < tolerance
+                        );
+                        
+                        if (converged) {
+                            return {
+                                limit: sequence[sequence.length - 1].y,
+                                converged: true,
+                                sequence: sequence
+                            };
+                        }
+                    }
+                    
+                    h *= 0.5;
+                } catch (error) {
+                    h *= 0.5;
+                    continue;
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Approach limit from right side
+        function approachFromRight(funcStr, xApproach, tolerance = 1e-10, maxIterations = 1000) {
+            const sequence = [];
+            let h = 0.1;
+            
+            for (let i = 0; i < maxIterations; i++) {
+                const x = xApproach + h;
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                    
+                    if (sequence.length > 2) {
+                        const lastThree = sequence.slice(-3).map(p => p.y);
+                        const converged = lastThree.every((val, idx, arr) => 
+                            idx === arr.length - 1 ? true : Math.abs(val - arr[idx + 1]) < tolerance
+                        );
+                        
+                        if (converged) {
+                            return {
+                                limit: sequence[sequence.length - 1].y,
+                                converged: true,
+                                sequence: sequence
+                            };
+                        }
+                    }
+                    
+                    h *= 0.5;
+                } catch (error) {
+                    h *= 0.5;
+                    continue;
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Calculate limit at infinity
+        function limitAtInfinity(funcStr, tolerance = 1e-10) {
+            const sequence = [];
+            const xValues = [10, 100, 1000, 10000, 100000];
+            
+            for (const x of xValues) {
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                } catch (error) {
+                    sequence.push({x, y: null});
+                }
+            }
+            
+            const validValues = sequence.filter(p => p.y !== null).map(p => p.y);
+            if (validValues.length >= 2) {
+                const converged = validValues.every((val, idx, arr) => 
+                    idx === arr.length - 1 ? true : isApproximatelyEqual(val, arr[idx + 1], tolerance)
+                );
+                
+                if (converged) {
+                    return {
+                        limit: validValues[validValues.length - 1],
+                        converged: true,
+                        approach: "infinity",
+                        sequence: sequence
+                    };
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Calculate limit at negative infinity
+        function limitAtNegativeInfinity(funcStr, tolerance = 1e-10) {
+            const sequence = [];
+            const xValues = [-10, -100, -1000, -10000, -100000];
+            
+            for (const x of xValues) {
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                } catch (error) {
+                    sequence.push({x, y: null});
+                }
+            }
+            
+            const validValues = sequence.filter(p => p.y !== null).map(p => p.y);
+            if (validValues.length >= 2) {
+                const converged = validValues.every((val, idx, arr) => 
+                    idx === arr.length - 1 ? true : isApproximatelyEqual(val, arr[idx + 1], tolerance)
+                );
+                
+                if (converged) {
+                    return {
+                        limit: validValues[validValues.length - 1],
+                        converged: true,
+                        approach: "-infinity",
+                        sequence: sequence
+                    };
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Main function to calculate limit
+        function calculateLimit() {
+            const funcInput = document.getElementById('functionInput').value.trim();
+            const limitValueInput = document.getElementById('limitValue').value.trim();
+            const resultSection = document.getElementById('resultSection');
+            const limitExpression = document.getElementById('limitExpression');
+            const resultContent = document.getElementById('resultContent');
+            const loading = document.getElementById('loading');
+            
+            // Validate inputs
+            if (!funcInput) {
+                alert('Please enter a function');
+                return;
+            }
+            
+            if (!limitValueInput) {
+                alert('Please enter a limit value');
+                return;
+            }
+            
+            // Show loading
+            loading.style.display = 'block';
+            resultSection.style.display = 'none';
+            
+            // Parse limit value
+            let xApproach;
+            let isInfinity = false;
+            let isNegativeInfinity = false;
+            
+            if (limitValueInput.toLowerCase() === 'infinity') {
+                isInfinity = true;
+            } else if (limitValueInput.toLowerCase() === '-infinity') {
+                isNegativeInfinity = true;
+            } else {
+                xApproach = parseFloat(limitValueInput);
+                if (isNaN(xApproach)) {
+                    loading.style.display = 'none';
+                    alert('Please enter a valid number for the limit value');
+                    return;
+                }
+            }
+            
+            // Calculate after a short delay to show loading
+            setTimeout(() => {
+                try {
+                    let result;
+                    let leftResult, rightResult;
+                    
+                    // Display the limit expression
+                    limitExpression.innerHTML = `lim<sub>x → ${limitValueInput}</sub> ${funcInput}`;
+                    
+                    // Calculate based on limit type
+                    if (isInfinity) {
+                        result = limitAtInfinity(funcInput);
+                        resultContent.innerHTML = formatResult(result, 'infinity');
+                    } else if (isNegativeInfinity) {
+                        result = limitAtNegativeInfinity(funcInput);
+                        resultContent.innerHTML = formatResult(result, '-infinity');
+                    } else {
+                        leftResult = approachFromLeft(funcInput, xApproach);
+                        rightResult = approachFromRight(funcInput, xApproach);
+                        
+                        let message = '';
+                        if (leftResult.converged && rightResult.converged) {
+                            if (isApproximatelyEqual(leftResult.limit, rightResult.limit)) {
+                                result = {
+                                    limit: (leftResult.limit + rightResult.limit) / 2,
+                                    converged: true,
+                                    leftSequence: leftResult.sequence,
+                                    rightSequence: rightResult.sequence
+                                };
+                                message = `<span class="success">✓ Limit exists</span>`;
+                            } else {
+                                message = `<span class="error">✗ Limit does not exist (left and right limits differ)</span>`;
+                            }
+                        } else if (leftResult.converged && !rightResult.converged) {
+                            message = `<span class="warning">⚠ Only left limit exists</span>`;
+                        } else if (!leftResult.converged && rightResult.converged) {
+                            message = `<span class="warning">⚠ Only right limit exists</span>`;
+                        } else {
+                            message = `<span class="error">✗ Limit could not be determined</span>`;
+                        }
+                        
+                        resultContent.innerHTML = formatTwoSidedResult(leftResult, rightResult, xApproach, message);
+                    }
+                    
+                    // Show results
+                    loading.style.display = 'none';
+                    resultSection.style.display = 'block';
+                    
+                } catch (error) {
+                    loading.style.display = 'none';
+                    resultContent.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+                    resultSection.style.display = 'block';
+                }
+            }, 500);
+        }
+        
+        // Format result for display
+        function formatResult(result, approachType) {
+            let html = '';
+            
+            if (result.converged) {
+                html += `<div class="step">
+                    <div class="step-title">Result:</div>
+                    <span class="success">Limit = ${result.limit.toFixed(6)}</span>
+                </div>`;
+                
+                html += `<div class="step">
+                    <div class="step-title">Approach Sequence (x → ${approachType}):</div>`;
+                
+                result.sequence.forEach((point, index) => {
+                    if (point.y !== null) {
+                        html += `x = ${point.x}, f(x) = ${point.y.toFixed(6)}<br>`;
+                    }
+                });
+                
+                html += `</div>`;
+            } else {
+                html += `<div class="step">
+                    <div class="step-title">Result:</div>
+                    <span class="error">Limit does not converge</span>
+                </div>`;
+            }
+            
+            return html;
+        }
+        
+        // Format two-sided result for display
+        function formatTwoSidedResult(leftResult, rightResult, xApproach, message) {
+            let html = `<div class="step">
+                <div class="step-title">Result:</div>
+                ${message}
+            </div>`;
+            
+            if (leftResult.converged || rightResult.converged) {
+                if (leftResult.converged && rightResult.converged) {
+                    html += `<div class="step">
+                        <div class="step-title">Left Limit (x → ${xApproach}⁻):</div>
+                        <span class="success">${leftResult.limit.toFixed(6)}</span>
+                    </div>`;
+                    
+                    html += `<div class="step">
+                        <div class="step-title">Right Limit (x → ${xApproach}⁺):</div>
+                        <span class="success">${rightResult.limit.toFixed(6)}</span>
+                    </div>`;
+                    
+                    html += `<div class="step">
+                        <div class="step-title">Final Limit:</div>
+                        <span class="success">${((leftResult.limit + rightResult.limit) / 2).toFixed(6)}</span>
+                    </div>`;
+                } else if (leftResult.converged) {
+                    html += `<div class="step">
+                        <div class="step-title">Left Limit (x → ${xApproach}⁻):</div>
+                        <span class="success">${leftResult.limit.toFixed(6)}</span>
+                    </div>`;
+                } else if (rightResult.converged) {
+                    html += `<div class="step">
+                        <div class="step-title">Right Limit (x → ${xApproach}⁺):</div>
+                        <span class="success">${rightResult.limit.toFixed(6)}</span>
+                    </div>`;
+                }
+            }
+            
+            return html;
+        }
+        
+        // Example usage on page load
+        window.onload = function() {
+            // You can auto-calculate an example on load if desired
+            // calculateLimit();
+        };
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Function Limit Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .calculator {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        input[type="text"], select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .calculate-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .examples {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .examples h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .example-list {
+            list-style-type: none;
+        }
+        
+        .example-list li {
+            padding: 8px 0;
+            color: #555;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .example-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .example-list code {
+            background-color: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .result-section {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .result-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-content {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            color: #333;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        .limit-expression {
+            font-size: 1.4em;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            font-family: 'Cambria', serif;
+        }
+        
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        
+        .step {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .step:last-child {
+            border-bottom: none;
+        }
+        
+        .step-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Function Limit Calculator</h1>
+        <p class="subtitle">Calculate the limit of a function as x approaches a specific value</p>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="functionInput">Enter Function f(x):</label>
+                <input type="text" id="functionInput" placeholder="e.g., (x^2 - 1)/(x - 1)" value="(x^2 - 1)/(x - 1)">
+                <small>Use 'x' as variable, ^ for power, sqrt() for square root</small>
+            </div>
+            
+            <div class="input-group">
+                <label for="limitValue">Limit x →</label>
+                <input type="text" id="limitValue" placeholder="e.g., 1, infinity, -infinity" value="1">
+                <small>Enter number, 'infinity', or '-infinity'</small>
+            </div>
+        </div>
+        
+        <button class="calculate-btn" onclick="calculateLimit()">
+            Calculate Limit
+        </button>
+        
+        <div class="examples">
+            <h3>Example Functions:</h3>
+            <ul class="example-list">
+                <li><code>sin(x)/x</code> as x → 0 (limit = 1)</li>
+                <li><code>(x^2 - 4)/(x - 2)</code> as x → 2 (limit = 4)</li>
+                <li><code>1/x</code> as x → 0 (limit does not exist)</li>
+                <li><code>(3*x^2 + 2*x - 1)/(x^2 + 5)</code> as x → infinity (limit = 3)</li>
+                <li><code>sqrt(x + 1) - 1</code> as x → 0 (limit = 0)</li>
+            </ul>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Calculating limit...</p>
+        </div>
+        
+        <div class="result-section" id="resultSection" style="display: none;">
+            <h3>📊 Limit Calculation Results</h3>
+            <div class="limit-expression" id="limitExpression"></div>
+            <div class="result-content" id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Safe evaluation of mathematical expressions
+        function evaluateFunction(funcStr, x) {
+            // Replace common math notations
+            let expression = funcStr
+                .replace(/\^/g, '**')
+                .replace(/sqrt\(/g, 'Math.sqrt(')
+                .replace(/sin\(/g, 'Math.sin(')
+                .replace(/cos\(/g, 'Math.cos(')
+                .replace(/tan\(/g, 'Math.tan(')
+                .replace(/log\(/g, 'Math.log10(')
+                .replace(/ln\(/g, 'Math.log(')
+                .replace(/abs\(/g, 'Math.abs(')
+                .replace(/exp\(/g, 'Math.exp(')
+                .replace(/pi/g, 'Math.PI')
+                .replace(/e/g, 'Math.E');
+            
+            // Replace x with its value
+            expression = expression.replace(/x/g, `(${x})`);
+            
+            try {
+                // Safe evaluation using Function constructor
+                return Function(`'use strict'; return (${expression})`)();
+            } catch (error) {
+                throw new Error(`Error evaluating function at x = ${x}: ${error.message}`);
+            }
+        }
+        
+        // Check if value is approximately equal
+        function isApproximatelyEqual(a, b, tolerance = 1e-10) {
+            if (Math.abs(a - b) < tolerance) return true;
+            if (Math.abs(a) > 1e10 || Math.abs(b) > 1e10) {
+                return Math.abs((a - b) / Math.max(Math.abs(a), Math.abs(b))) < tolerance;
+            }
+            return false;
+        }
+        
+        // Approach limit from left side
+        function approachFromLeft(funcStr, xApproach, tolerance = 1e-10, maxIterations = 1000) {
+            const sequence = [];
+            let h = 0.1;
+            
+            for (let i = 0; i < maxIterations; i++) {
+                const x = xApproach - h;
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                    
+                    if (sequence.length > 2) {
+                        const lastThree = sequence.slice(-3).map(p => p.y);
+                        const converged = lastThree.every((val, idx, arr) => 
+                            idx === arr.length - 1 ? true : Math.abs(val - arr[idx + 1]) < tolerance
+                        );
+                        
+                        if (converged) {
+                            return {
+                                limit: sequence[sequence.length - 1].y,
+                                converged: true,
+                                sequence: sequence
+                            };
+                        }
+                    }
+                    
+                    h *= 0.5;
+                } catch (error) {
+                    h *= 0.5;
+                    continue;
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Approach limit from right side
+        function approachFromRight(funcStr, xApproach, tolerance = 1e-10, maxIterations = 1000) {
+            const sequence = [];
+            let h = 0.1;
+            
+            for (let i = 0; i < maxIterations; i++) {
+                const x = xApproach + h;
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                    
+                    if (sequence.length > 2) {
+                        const lastThree = sequence.slice(-3).map(p => p.y);
+                        const converged = lastThree.every((val, idx, arr) => 
+                            idx === arr.length - 1 ? true : Math.abs(val - arr[idx + 1]) < tolerance
+                        );
+                        
+                        if (converged) {
+                            return {
+                                limit: sequence[sequence.length - 1].y,
+                                converged: true,
+                                sequence: sequence
+                            };
+                        }
+                    }
+                    
+                    h *= 0.5;
+                } catch (error) {
+                    h *= 0.5;
+                    continue;
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Calculate limit at infinity
+        function limitAtInfinity(funcStr, tolerance = 1e-10) {
+            const sequence = [];
+            const xValues = [10, 100, 1000, 10000, 100000];
+            
+            for (const x of xValues) {
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                } catch (error) {
+                    sequence.push({x, y: null});
+                }
+            }
+            
+            const validValues = sequence.filter(p => p.y !== null).map(p => p.y);
+            if (validValues.length >= 2) {
+                const converged = validValues.every((val, idx, arr) => 
+                    idx === arr.length - 1 ? true : isApproximatelyEqual(val, arr[idx + 1], tolerance)
+                );
+                
+                if (converged) {
+                    return {
+                        limit: validValues[validValues.length - 1],
+                        converged: true,
+                        approach: "infinity",
+                        sequence: sequence
+                    };
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Calculate limit at negative infinity
+        function limitAtNegativeInfinity(funcStr, tolerance = 1e-10) {
+            const sequence = [];
+            const xValues = [-10, -100, -1000, -10000, -100000];
+            
+            for (const x of xValues) {
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                } catch (error) {
+                    sequence.push({x, y: null});
+                }
+            }
+            
+            const validValues = sequence.filter(p => p.y !== null).map(p => p.y);
+            if (validValues.length >= 2) {
+                const converged = validValues.every((val, idx, arr) => 
+                    idx === arr.length - 1 ? true : isApproximatelyEqual(val, arr[idx + 1], tolerance)
+                );
+                
+                if (converged) {
+                    return {
+                        limit: validValues[validValues.length - 1],
+                        converged: true,
+                        approach: "-infinity",
+                        sequence: sequence
+                    };
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Main function to calculate limit
+        function calculateLimit() {
+            const funcInput = document.getElementById('functionInput').value.trim();
+            const limitValueInput = document.getElementById('limitValue').value.trim();
+            const resultSection = document.getElementById('resultSection');
+            const limitExpression = document.getElementById('limitExpression');
+            const resultContent = document.getElementById('resultContent');
+            const loading = document.getElementById('loading');
+            
+            // Validate inputs
+            if (!funcInput) {
+                alert('Please enter a function');
+                return;
+            }
+            
+            if (!limitValueInput) {
+                alert('Please enter a limit value');
+                return;
+            }
+            
+            // Show loading
+            loading.style.display = 'block';
+            resultSection.style.display = 'none';
+            
+            // Parse limit value
+            let xApproach;
+            let isInfinity = false;
+            let isNegativeInfinity = false;
+            
+            if (limitValueInput.toLowerCase() === 'infinity') {
+                isInfinity = true;
+            } else if (limitValueInput.toLowerCase() === '-infinity') {
+                isNegativeInfinity = true;
+            } else {
+                xApproach = parseFloat(limitValueInput);
+                if (isNaN(xApproach)) {
+                    loading.style.display = 'none';
+                    alert('Please enter a valid number for the limit value');
+                    return;
+                }
+            }
+            
+            // Calculate after a short delay to show loading
+            setTimeout(() => {
+                try {
+                    let result;
+                    let leftResult, rightResult;
+                    
+                    // Display the limit expression
+                    limitExpression.innerHTML = `lim<sub>x → ${limitValueInput}</sub> ${funcInput}`;
+                    
+                    // Calculate based on limit type
+                    if (isInfinity) {
+                        result = limitAtInfinity(funcInput);
+                        resultContent.innerHTML = formatResult(result, 'infinity');
+                    } else if (isNegativeInfinity) {
+                        result = limitAtNegativeInfinity(funcInput);
+                        resultContent.innerHTML = formatResult(result, '-infinity');
+                    } else {
+                        leftResult = approachFromLeft(funcInput, xApproach);
+                        rightResult = approachFromRight(funcInput, xApproach);
+                        
+                        let message = '';
+                        if (leftResult.converged && rightResult.converged) {
+                            if (isApproximatelyEqual(leftResult.limit, rightResult.limit)) {
+                                result = {
+                                    limit: (leftResult.limit + rightResult.limit) / 2,
+                                    converged: true,
+                                    leftSequence: leftResult.sequence,
+                                    rightSequence: rightResult.sequence
+                                };
+                                message = `<span class="success">✓ Limit exists</span>`;
+                            } else {
+                                message = `<span class="error">✗ Limit does not exist (left and right limits differ)</span>`;
+                            }
+                        } else if (leftResult.converged && !rightResult.converged) {
+                            message = `<span class="warning">⚠ Only left limit exists</span>`;
+                        } else if (!leftResult.converged && rightResult.converged) {
+                            message = `<span class="warning">⚠ Only right limit exists</span>`;
+                        } else {
+                            message = `<span class="error">✗ Limit could not be determined</span>`;
+                        }
+                        
+                        resultContent.innerHTML = formatTwoSidedResult(leftResult, rightResult, xApproach, message);
+                    }
+                    
+                    // Show results
+                    loading.style.display = 'none';
+                    resultSection.style.display = 'block';
+                    
+                } catch (error) {
+                    loading.style.display = 'none';
+                    resultContent.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+                    resultSection.style.display = 'block';
+                }
+            }, 500);
+        }
+        
+        // Format result for display
+        function formatResult(result, approachType) {
+            let html = '';
+            
+            if (result.converged) {
+                html += `<div class="step">
+                    <div class="step-title">Result:</div>
+                    <span class="success">Limit = ${result.limit.toFixed(6)}</span>
+                </div>`;
+                
+                html += `<div class="step">
+                    <div class="step-title">Approach Sequence (x → ${approachType}):</div>`;
+                
+                result.sequence.forEach((point, index) => {
+                    if (point.y !== null) {
+                        html += `x = ${point.x}, f(x) = ${point.y.toFixed(6)}<br>`;
+                    }
+                });
+                
+                html += `</div>`;
+            } else {
+                html += `<div class="step">
+                    <div class="step-title">Result:</div>
+                    <span class="error">Limit does not converge</span>
+                </div>`;
+            }
+            
+            return html;
+        }
+        
+        // Format two-sided result for display
+        function formatTwoSidedResult(leftResult, rightResult, xApproach, message) {
+            let html = `<div class="step">
+                <div class="step-title">Result:</div>
+                ${message}
+            </div>`;
+            
+            if (leftResult.converged || rightResult.converged) {
+                if (leftResult.converged && rightResult.converged) {
+                    html += `<div class="step">
+                        <div class="step-title">Left Limit (x → ${xApproach}⁻):</div>
+                        <span class="success">${leftResult.limit.toFixed(6)}</span>
+                    </div>`;
+                    
+                    html += `<div class="step">
+                        <div class="step-title">Right Limit (x → ${xApproach}⁺):</div>
+                        <span class="success">${rightResult.limit.toFixed(6)}</span>
+                    </div>`;
+                    
+                    html += `<div class="step">
+                        <div class="step-title">Final Limit:</div>
+                        <span class="success">${((leftResult.limit + rightResult.limit) / 2).toFixed(6)}</span>
+                    </div>`;
+                } else if (leftResult.converged) {
+                    html += `<div class="step">
+                        <div class="step-title">Left Limit (x → ${xApproach}⁻):</div>
+                        <span class="success">${leftResult.limit.toFixed(6)}</span>
+                    </div>`;
+                } else if (rightResult.converged) {
+                    html += `<div class="step">
+                        <div class="step-title">Right Limit (x → ${xApproach}⁺):</div>
+                        <span class="success">${rightResult.limit.toFixed(6)}</span>
+                    </div>`;
+                }
+            }
+            
+            return html;
+        }
+        
+        // Example usage on page load
+        window.onload = function() {
+            // You can auto-calculate an example on load if desired
+            // calculateLimit();
+        };
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Function Limit Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .calculator {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        input[type="text"], select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .calculate-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .examples {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .examples h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .example-list {
+            list-style-type: none;
+        }
+        
+        .example-list li {
+            padding: 8px 0;
+            color: #555;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .example-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .example-list code {
+            background-color: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .result-section {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .result-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-content {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            color: #333;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        .limit-expression {
+            font-size: 1.4em;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            font-family: 'Cambria', serif;
+        }
+        
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        
+        .step {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .step:last-child {
+            border-bottom: none;
+        }
+        
+        .step-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Function Limit Calculator</h1>
+        <p class="subtitle">Calculate the limit of a function as x approaches a specific value</p>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="functionInput">Enter Function f(x):</label>
+                <input type="text" id="functionInput" placeholder="e.g., (x^2 - 1)/(x - 1)" value="(x^2 - 1)/(x - 1)">
+                <small>Use 'x' as variable, ^ for power, sqrt() for square root</small>
+            </div>
+            
+            <div class="input-group">
+                <label for="limitValue">Limit x →</label>
+                <input type="text" id="limitValue" placeholder="e.g., 1, infinity, -infinity" value="1">
+                <small>Enter number, 'infinity', or '-infinity'</small>
+            </div>
+        </div>
+        
+        <button class="calculate-btn" onclick="calculateLimit()">
+            Calculate Limit
+        </button>
+        
+        <div class="examples">
+            <h3>Example Functions:</h3>
+            <ul class="example-list">
+                <li><code>sin(x)/x</code> as x → 0 (limit = 1)</li>
+                <li><code>(x^2 - 4)/(x - 2)</code> as x → 2 (limit = 4)</li>
+                <li><code>1/x</code> as x → 0 (limit does not exist)</li>
+                <li><code>(3*x^2 + 2*x - 1)/(x^2 + 5)</code> as x → infinity (limit = 3)</li>
+                <li><code>sqrt(x + 1) - 1</code> as x → 0 (limit = 0)</li>
+            </ul>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Calculating limit...</p>
+        </div>
+        
+        <div class="result-section" id="resultSection" style="display: none;">
+            <h3>📊 Limit Calculation Results</h3>
+            <div class="limit-expression" id="limitExpression"></div>
+            <div class="result-content" id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Safe evaluation of mathematical expressions
+        function evaluateFunction(funcStr, x) {
+            // Replace common math notations
+            let expression = funcStr
+                .replace(/\^/g, '**')
+                .replace(/sqrt\(/g, 'Math.sqrt(')
+                .replace(/sin\(/g, 'Math.sin(')
+                .replace(/cos\(/g, 'Math.cos(')
+                .replace(/tan\(/g, 'Math.tan(')
+                .replace(/log\(/g, 'Math.log10(')
+                .replace(/ln\(/g, 'Math.log(')
+                .replace(/abs\(/g, 'Math.abs(')
+                .replace(/exp\(/g, 'Math.exp(')
+                .replace(/pi/g, 'Math.PI')
+                .replace(/e/g, 'Math.E');
+            
+            // Replace x with its value
+            expression = expression.replace(/x/g, `(${x})`);
+            
+            try {
+                // Safe evaluation using Function constructor
+                return Function(`'use strict'; return (${expression})`)();
+            } catch (error) {
+                throw new Error(`Error evaluating function at x = ${x}: ${error.message}`);
+            }
+        }
+        
+        // Check if value is approximately equal
+        function isApproximatelyEqual(a, b, tolerance = 1e-10) {
+            if (Math.abs(a - b) < tolerance) return true;
+            if (Math.abs(a) > 1e10 || Math.abs(b) > 1e10) {
+                return Math.abs((a - b) / Math.max(Math.abs(a), Math.abs(b))) < tolerance;
+            }
+            return false;
+        }
+        
+        // Approach limit from left side
+        function approachFromLeft(funcStr, xApproach, tolerance = 1e-10, maxIterations = 1000) {
+            const sequence = [];
+            let h = 0.1;
+            
+            for (let i = 0; i < maxIterations; i++) {
+                const x = xApproach - h;
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                    
+                    if (sequence.length > 2) {
+                        const lastThree = sequence.slice(-3).map(p => p.y);
+                        const converged = lastThree.every((val, idx, arr) => 
+                            idx === arr.length - 1 ? true : Math.abs(val - arr[idx + 1]) < tolerance
+                        );
+                        
+                        if (converged) {
+                            return {
+                                limit: sequence[sequence.length - 1].y,
+                                converged: true,
+                                sequence: sequence
+                            };
+                        }
+                    }
+                    
+                    h *= 0.5;
+                } catch (error) {
+                    h *= 0.5;
+                    continue;
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Approach limit from right side
+        function approachFromRight(funcStr, xApproach, tolerance = 1e-10, maxIterations = 1000) {
+            const sequence = [];
+            let h = 0.1;
+            
+            for (let i = 0; i < maxIterations; i++) {
+                const x = xApproach + h;
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                    
+                    if (sequence.length > 2) {
+                        const lastThree = sequence.slice(-3).map(p => p.y);
+                        const converged = lastThree.every((val, idx, arr) => 
+                            idx === arr.length - 1 ? true : Math.abs(val - arr[idx + 1]) < tolerance
+                        );
+                        
+                        if (converged) {
+                            return {
+                                limit: sequence[sequence.length - 1].y,
+                                converged: true,
+                                sequence: sequence
+                            };
+                        }
+                    }
+                    
+                    h *= 0.5;
+                } catch (error) {
+                    h *= 0.5;
+                    continue;
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Calculate limit at infinity
+        function limitAtInfinity(funcStr, tolerance = 1e-10) {
+            const sequence = [];
+            const xValues = [10, 100, 1000, 10000, 100000];
+            
+            for (const x of xValues) {
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                } catch (error) {
+                    sequence.push({x, y: null});
+                }
+            }
+            
+            const validValues = sequence.filter(p => p.y !== null).map(p => p.y);
+            if (validValues.length >= 2) {
+                const converged = validValues.every((val, idx, arr) => 
+                    idx === arr.length - 1 ? true : isApproximatelyEqual(val, arr[idx + 1], tolerance)
+                );
+                
+                if (converged) {
+                    return {
+                        limit: validValues[validValues.length - 1],
+                        converged: true,
+                        approach: "infinity",
+                        sequence: sequence
+                    };
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Calculate limit at negative infinity
+        function limitAtNegativeInfinity(funcStr, tolerance = 1e-10) {
+            const sequence = [];
+            const xValues = [-10, -100, -1000, -10000, -100000];
+            
+            for (const x of xValues) {
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                } catch (error) {
+                    sequence.push({x, y: null});
+                }
+            }
+            
+            const validValues = sequence.filter(p => p.y !== null).map(p => p.y);
+            if (validValues.length >= 2) {
+                const converged = validValues.every((val, idx, arr) => 
+                    idx === arr.length - 1 ? true : isApproximatelyEqual(val, arr[idx + 1], tolerance)
+                );
+                
+                if (converged) {
+                    return {
+                        limit: validValues[validValues.length - 1],
+                        converged: true,
+                        approach: "-infinity",
+                        sequence: sequence
+                    };
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Main function to calculate limit
+        function calculateLimit() {
+            const funcInput = document.getElementById('functionInput').value.trim();
+            const limitValueInput = document.getElementById('limitValue').value.trim();
+            const resultSection = document.getElementById('resultSection');
+            const limitExpression = document.getElementById('limitExpression');
+            const resultContent = document.getElementById('resultContent');
+            const loading = document.getElementById('loading');
+            
+            // Validate inputs
+            if (!funcInput) {
+                alert('Please enter a function');
+                return;
+            }
+            
+            if (!limitValueInput) {
+                alert('Please enter a limit value');
+                return;
+            }
+            
+            // Show loading
+            loading.style.display = 'block';
+            resultSection.style.display = 'none';
+            
+            // Parse limit value
+            let xApproach;
+            let isInfinity = false;
+            let isNegativeInfinity = false;
+            
+            if (limitValueInput.toLowerCase() === 'infinity') {
+                isInfinity = true;
+            } else if (limitValueInput.toLowerCase() === '-infinity') {
+                isNegativeInfinity = true;
+            } else {
+                xApproach = parseFloat(limitValueInput);
+                if (isNaN(xApproach)) {
+                    loading.style.display = 'none';
+                    alert('Please enter a valid number for the limit value');
+                    return;
+                }
+            }
+            
+            // Calculate after a short delay to show loading
+            setTimeout(() => {
+                try {
+                    let result;
+                    let leftResult, rightResult;
+                    
+                    // Display the limit expression
+                    limitExpression.innerHTML = `lim<sub>x → ${limitValueInput}</sub> ${funcInput}`;
+                    
+                    // Calculate based on limit type
+                    if (isInfinity) {
+                        result = limitAtInfinity(funcInput);
+                        resultContent.innerHTML = formatResult(result, 'infinity');
+                    } else if (isNegativeInfinity) {
+                        result = limitAtNegativeInfinity(funcInput);
+                        resultContent.innerHTML = formatResult(result, '-infinity');
+                    } else {
+                        leftResult = approachFromLeft(funcInput, xApproach);
+                        rightResult = approachFromRight(funcInput, xApproach);
+                        
+                        let message = '';
+                        if (leftResult.converged && rightResult.converged) {
+                            if (isApproximatelyEqual(leftResult.limit, rightResult.limit)) {
+                                result = {
+                                    limit: (leftResult.limit + rightResult.limit) / 2,
+                                    converged: true,
+                                    leftSequence: leftResult.sequence,
+                                    rightSequence: rightResult.sequence
+                                };
+                                message = `<span class="success">✓ Limit exists</span>`;
+                            } else {
+                                message = `<span class="error">✗ Limit does not exist (left and right limits differ)</span>`;
+                            }
+                        } else if (leftResult.converged && !rightResult.converged) {
+                            message = `<span class="warning">⚠ Only left limit exists</span>`;
+                        } else if (!leftResult.converged && rightResult.converged) {
+                            message = `<span class="warning">⚠ Only right limit exists</span>`;
+                        } else {
+                            message = `<span class="error">✗ Limit could not be determined</span>`;
+                        }
+                        
+                        resultContent.innerHTML = formatTwoSidedResult(leftResult, rightResult, xApproach, message);
+                    }
+                    
+                    // Show results
+                    loading.style.display = 'none';
+                    resultSection.style.display = 'block';
+                    
+                } catch (error) {
+                    loading.style.display = 'none';
+                    resultContent.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+                    resultSection.style.display = 'block';
+                }
+            }, 500);
+        }
+        
+        // Format result for display
+        function formatResult(result, approachType) {
+            let html = '';
+            
+            if (result.converged) {
+                html += `<div class="step">
+                    <div class="step-title">Result:</div>
+                    <span class="success">Limit = ${result.limit.toFixed(6)}</span>
+                </div>`;
+                
+                html += `<div class="step">
+                    <div class="step-title">Approach Sequence (x → ${approachType}):</div>`;
+                
+                result.sequence.forEach((point, index) => {
+                    if (point.y !== null) {
+                        html += `x = ${point.x}, f(x) = ${point.y.toFixed(6)}<br>`;
+                    }
+                });
+                
+                html += `</div>`;
+            } else {
+                html += `<div class="step">
+                    <div class="step-title">Result:</div>
+                    <span class="error">Limit does not converge</span>
+                </div>`;
+            }
+            
+            return html;
+        }
+        
+        // Format two-sided result for display
+        function formatTwoSidedResult(leftResult, rightResult, xApproach, message) {
+            let html = `<div class="step">
+                <div class="step-title">Result:</div>
+                ${message}
+            </div>`;
+            
+            if (leftResult.converged || rightResult.converged) {
+                if (leftResult.converged && rightResult.converged) {
+                    html += `<div class="step">
+                        <div class="step-title">Left Limit (x → ${xApproach}⁻):</div>
+                        <span class="success">${leftResult.limit.toFixed(6)}</span>
+                    </div>`;
+                    
+                    html += `<div class="step">
+                        <div class="step-title">Right Limit (x → ${xApproach}⁺):</div>
+                        <span class="success">${rightResult.limit.toFixed(6)}</span>
+                    </div>`;
+                    
+                    html += `<div class="step">
+                        <div class="step-title">Final Limit:</div>
+                        <span class="success">${((leftResult.limit + rightResult.limit) / 2).toFixed(6)}</span>
+                    </div>`;
+                } else if (leftResult.converged) {
+                    html += `<div class="step">
+                        <div class="step-title">Left Limit (x → ${xApproach}⁻):</div>
+                        <span class="success">${leftResult.limit.toFixed(6)}</span>
+                    </div>`;
+                } else if (rightResult.converged) {
+                    html += `<div class="step">
+                        <div class="step-title">Right Limit (x → ${xApproach}⁺):</div>
+                        <span class="success">${rightResult.limit.toFixed(6)}</span>
+                    </div>`;
+                }
+            }
+            
+            return html;
+        }
+        
+        // Example usage on page load
+        window.onload = function() {
+            // You can auto-calculate an example on load if desired
+            // calculateLimit();
+        };
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Function Limit Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .calculator {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        input[type="text"], select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .calculate-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .examples {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .examples h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .example-list {
+            list-style-type: none;
+        }
+        
+        .example-list li {
+            padding: 8px 0;
+            color: #555;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .example-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .example-list code {
+            background-color: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .result-section {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .result-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-content {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            color: #333;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        .limit-expression {
+            font-size: 1.4em;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            font-family: 'Cambria', serif;
+        }
+        
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        
+        .step {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .step:last-child {
+            border-bottom: none;
+        }
+        
+        .step-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Function Limit Calculator</h1>
+        <p class="subtitle">Calculate the limit of a function as x approaches a specific value</p>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="functionInput">Enter Function f(x):</label>
+                <input type="text" id="functionInput" placeholder="e.g., (x^2 - 1)/(x - 1)" value="(x^2 - 1)/(x - 1)">
+                <small>Use 'x' as variable, ^ for power, sqrt() for square root</small>
+            </div>
+            
+            <div class="input-group">
+                <label for="limitValue">Limit x →</label>
+                <input type="text" id="limitValue" placeholder="e.g., 1, infinity, -infinity" value="1">
+                <small>Enter number, 'infinity', or '-infinity'</small>
+            </div>
+        </div>
+        
+        <button class="calculate-btn" onclick="calculateLimit()">
+            Calculate Limit
+        </button>
+        
+        <div class="examples">
+            <h3>Example Functions:</h3>
+            <ul class="example-list">
+                <li><code>sin(x)/x</code> as x → 0 (limit = 1)</li>
+                <li><code>(x^2 - 4)/(x - 2)</code> as x → 2 (limit = 4)</li>
+                <li><code>1/x</code> as x → 0 (limit does not exist)</li>
+                <li><code>(3*x^2 + 2*x - 1)/(x^2 + 5)</code> as x → infinity (limit = 3)</li>
+                <li><code>sqrt(x + 1) - 1</code> as x → 0 (limit = 0)</li>
+            </ul>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Calculating limit...</p>
+        </div>
+        
+        <div class="result-section" id="resultSection" style="display: none;">
+            <h3>📊 Limit Calculation Results</h3>
+            <div class="limit-expression" id="limitExpression"></div>
+            <div class="result-content" id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Safe evaluation of mathematical expressions
+        function evaluateFunction(funcStr, x) {
+            // Replace common math notations
+            let expression = funcStr
+                .replace(/\^/g, '**')
+                .replace(/sqrt\(/g, 'Math.sqrt(')
+                .replace(/sin\(/g, 'Math.sin(')
+                .replace(/cos\(/g, 'Math.cos(')
+                .replace(/tan\(/g, 'Math.tan(')
+                .replace(/log\(/g, 'Math.log10(')
+                .replace(/ln\(/g, 'Math.log(')
+                .replace(/abs\(/g, 'Math.abs(')
+                .replace(/exp\(/g, 'Math.exp(')
+                .replace(/pi/g, 'Math.PI')
+                .replace(/e/g, 'Math.E');
+            
+            // Replace x with its value
+            expression = expression.replace(/x/g, `(${x})`);
+            
+            try {
+                // Safe evaluation using Function constructor
+                return Function(`'use strict'; return (${expression})`)();
+            } catch (error) {
+                throw new Error(`Error evaluating function at x = ${x}: ${error.message}`);
+            }
+        }
+        
+        // Check if value is approximately equal
+        function isApproximatelyEqual(a, b, tolerance = 1e-10) {
+            if (Math.abs(a - b) < tolerance) return true;
+            if (Math.abs(a) > 1e10 || Math.abs(b) > 1e10) {
+                return Math.abs((a - b) / Math.max(Math.abs(a), Math.abs(b))) < tolerance;
+            }
+            return false;
+        }
+        
+        // Approach limit from left side
+        function approachFromLeft(funcStr, xApproach, tolerance = 1e-10, maxIterations = 1000) {
+            const sequence = [];
+            let h = 0.1;
+            
+            for (let i = 0; i < maxIterations; i++) {
+                const x = xApproach - h;
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                    
+                    if (sequence.length > 2) {
+                        const lastThree = sequence.slice(-3).map(p => p.y);
+                        const converged = lastThree.every((val, idx, arr) => 
+                            idx === arr.length - 1 ? true : Math.abs(val - arr[idx + 1]) < tolerance
+                        );
+                        
+                        if (converged) {
+                            return {
+                                limit: sequence[sequence.length - 1].y,
+                                converged: true,
+                                sequence: sequence
+                            };
+                        }
+                    }
+                    
+                    h *= 0.5;
+                } catch (error) {
+                    h *= 0.5;
+                    continue;
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Approach limit from right side
+        function approachFromRight(funcStr, xApproach, tolerance = 1e-10, maxIterations = 1000) {
+            const sequence = [];
+            let h = 0.1;
+            
+            for (let i = 0; i < maxIterations; i++) {
+                const x = xApproach + h;
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                    
+                    if (sequence.length > 2) {
+                        const lastThree = sequence.slice(-3).map(p => p.y);
+                        const converged = lastThree.every((val, idx, arr) => 
+                            idx === arr.length - 1 ? true : Math.abs(val - arr[idx + 1]) < tolerance
+                        );
+                        
+                        if (converged) {
+                            return {
+                                limit: sequence[sequence.length - 1].y,
+                                converged: true,
+                                sequence: sequence
+                            };
+                        }
+                    }
+                    
+                    h *= 0.5;
+                } catch (error) {
+                    h *= 0.5;
+                    continue;
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Calculate limit at infinity
+        function limitAtInfinity(funcStr, tolerance = 1e-10) {
+            const sequence = [];
+            const xValues = [10, 100, 1000, 10000, 100000];
+            
+            for (const x of xValues) {
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                } catch (error) {
+                    sequence.push({x, y: null});
+                }
+            }
+            
+            const validValues = sequence.filter(p => p.y !== null).map(p => p.y);
+            if (validValues.length >= 2) {
+                const converged = validValues.every((val, idx, arr) => 
+                    idx === arr.length - 1 ? true : isApproximatelyEqual(val, arr[idx + 1], tolerance)
+                );
+                
+                if (converged) {
+                    return {
+                        limit: validValues[validValues.length - 1],
+                        converged: true,
+                        approach: "infinity",
+                        sequence: sequence
+                    };
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Calculate limit at negative infinity
+        function limitAtNegativeInfinity(funcStr, tolerance = 1e-10) {
+            const sequence = [];
+            const xValues = [-10, -100, -1000, -10000, -100000];
+            
+            for (const x of xValues) {
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                } catch (error) {
+                    sequence.push({x, y: null});
+                }
+            }
+            
+            const validValues = sequence.filter(p => p.y !== null).map(p => p.y);
+            if (validValues.length >= 2) {
+                const converged = validValues.every((val, idx, arr) => 
+                    idx === arr.length - 1 ? true : isApproximatelyEqual(val, arr[idx + 1], tolerance)
+                );
+                
+                if (converged) {
+                    return {
+                        limit: validValues[validValues.length - 1],
+                        converged: true,
+                        approach: "-infinity",
+                        sequence: sequence
+                    };
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Main function to calculate limit
+        function calculateLimit() {
+            const funcInput = document.getElementById('functionInput').value.trim();
+            const limitValueInput = document.getElementById('limitValue').value.trim();
+            const resultSection = document.getElementById('resultSection');
+            const limitExpression = document.getElementById('limitExpression');
+            const resultContent = document.getElementById('resultContent');
+            const loading = document.getElementById('loading');
+            
+            // Validate inputs
+            if (!funcInput) {
+                alert('Please enter a function');
+                return;
+            }
+            
+            if (!limitValueInput) {
+                alert('Please enter a limit value');
+                return;
+            }
+            
+            // Show loading
+            loading.style.display = 'block';
+            resultSection.style.display = 'none';
+            
+            // Parse limit value
+            let xApproach;
+            let isInfinity = false;
+            let isNegativeInfinity = false;
+            
+            if (limitValueInput.toLowerCase() === 'infinity') {
+                isInfinity = true;
+            } else if (limitValueInput.toLowerCase() === '-infinity') {
+                isNegativeInfinity = true;
+            } else {
+                xApproach = parseFloat(limitValueInput);
+                if (isNaN(xApproach)) {
+                    loading.style.display = 'none';
+                    alert('Please enter a valid number for the limit value');
+                    return;
+                }
+            }
+            
+            // Calculate after a short delay to show loading
+            setTimeout(() => {
+                try {
+                    let result;
+                    let leftResult, rightResult;
+                    
+                    // Display the limit expression
+                    limitExpression.innerHTML = `lim<sub>x → ${limitValueInput}</sub> ${funcInput}`;
+                    
+                    // Calculate based on limit type
+                    if (isInfinity) {
+                        result = limitAtInfinity(funcInput);
+                        resultContent.innerHTML = formatResult(result, 'infinity');
+                    } else if (isNegativeInfinity) {
+                        result = limitAtNegativeInfinity(funcInput);
+                        resultContent.innerHTML = formatResult(result, '-infinity');
+                    } else {
+                        leftResult = approachFromLeft(funcInput, xApproach);
+                        rightResult = approachFromRight(funcInput, xApproach);
+                        
+                        let message = '';
+                        if (leftResult.converged && rightResult.converged) {
+                            if (isApproximatelyEqual(leftResult.limit, rightResult.limit)) {
+                                result = {
+                                    limit: (leftResult.limit + rightResult.limit) / 2,
+                                    converged: true,
+                                    leftSequence: leftResult.sequence,
+                                    rightSequence: rightResult.sequence
+                                };
+                                message = `<span class="success">✓ Limit exists</span>`;
+                            } else {
+                                message = `<span class="error">✗ Limit does not exist (left and right limits differ)</span>`;
+                            }
+                        } else if (leftResult.converged && !rightResult.converged) {
+                            message = `<span class="warning">⚠ Only left limit exists</span>`;
+                        } else if (!leftResult.converged && rightResult.converged) {
+                            message = `<span class="warning">⚠ Only right limit exists</span>`;
+                        } else {
+                            message = `<span class="error">✗ Limit could not be determined</span>`;
+                        }
+                        
+                        resultContent.innerHTML = formatTwoSidedResult(leftResult, rightResult, xApproach, message);
+                    }
+                    
+                    // Show results
+                    loading.style.display = 'none';
+                    resultSection.style.display = 'block';
+                    
+                } catch (error) {
+                    loading.style.display = 'none';
+                    resultContent.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+                    resultSection.style.display = 'block';
+                }
+            }, 500);
+        }
+        
+        // Format result for display
+        function formatResult(result, approachType) {
+            let html = '';
+            
+            if (result.converged) {
+                html += `<div class="step">
+                    <div class="step-title">Result:</div>
+                    <span class="success">Limit = ${result.limit.toFixed(6)}</span>
+                </div>`;
+                
+                html += `<div class="step">
+                    <div class="step-title">Approach Sequence (x → ${approachType}):</div>`;
+                
+                result.sequence.forEach((point, index) => {
+                    if (point.y !== null) {
+                        html += `x = ${point.x}, f(x) = ${point.y.toFixed(6)}<br>`;
+                    }
+                });
+                
+                html += `</div>`;
+            } else {
+                html += `<div class="step">
+                    <div class="step-title">Result:</div>
+                    <span class="error">Limit does not converge</span>
+                </div>`;
+            }
+            
+            return html;
+        }
+        
+        // Format two-sided result for display
+        function formatTwoSidedResult(leftResult, rightResult, xApproach, message) {
+            let html = `<div class="step">
+                <div class="step-title">Result:</div>
+                ${message}
+            </div>`;
+            
+            if (leftResult.converged || rightResult.converged) {
+                if (leftResult.converged && rightResult.converged) {
+                    html += `<div class="step">
+                        <div class="step-title">Left Limit (x → ${xApproach}⁻):</div>
+                        <span class="success">${leftResult.limit.toFixed(6)}</span>
+                    </div>`;
+                    
+                    html += `<div class="step">
+                        <div class="step-title">Right Limit (x → ${xApproach}⁺):</div>
+                        <span class="success">${rightResult.limit.toFixed(6)}</span>
+                    </div>`;
+                    
+                    html += `<div class="step">
+                        <div class="step-title">Final Limit:</div>
+                        <span class="success">${((leftResult.limit + rightResult.limit) / 2).toFixed(6)}</span>
+                    </div>`;
+                } else if (leftResult.converged) {
+                    html += `<div class="step">
+                        <div class="step-title">Left Limit (x → ${xApproach}⁻):</div>
+                        <span class="success">${leftResult.limit.toFixed(6)}</span>
+                    </div>`;
+                } else if (rightResult.converged) {
+                    html += `<div class="step">
+                        <div class="step-title">Right Limit (x → ${xApproach}⁺):</div>
+                        <span class="success">${rightResult.limit.toFixed(6)}</span>
+                    </div>`;
+                }
+            }
+            
+            return html;
+        }
+        
+        // Example usage on page load
+        window.onload = function() {
+            // You can auto-calculate an example on load if desired
+            // calculateLimit();
+        };
+    </script>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Function Limit Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .calculator {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            padding: 40px;
+            width: 100%;
+            max-width: 800px;
+        }
+        
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 1.1em;
+        }
+        
+        .input-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        @media (max-width: 768px) {
+            .input-section {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        
+        input[type="text"], select {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .calculate-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .examples {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        
+        .examples h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .example-list {
+            list-style-type: none;
+        }
+        
+        .example-list li {
+            padding: 8px 0;
+            color: #555;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .example-list li:last-child {
+            border-bottom: none;
+        }
+        
+        .example-list code {
+            background-color: #e9ecef;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .result-section {
+            margin-top: 30px;
+            padding: 25px;
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .result-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .result-content {
+            font-family: 'Courier New', monospace;
+            font-size: 1.2em;
+            color: #333;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        .limit-expression {
+            font-size: 1.4em;
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+            border-radius: 8px;
+            font-family: 'Cambria', serif;
+        }
+        
+        .success {
+            color: #28a745;
+            font-weight: bold;
+        }
+        
+        .error {
+            color: #dc3545;
+            font-weight: bold;
+        }
+        
+        .warning {
+            color: #ffc107;
+            font-weight: bold;
+        }
+        
+        .step {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .step:last-child {
+            border-bottom: none;
+        }
+        
+        .step-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Function Limit Calculator</h1>
+        <p class="subtitle">Calculate the limit of a function as x approaches a specific value</p>
+        
+        <div class="input-section">
+            <div class="input-group">
+                <label for="functionInput">Enter Function f(x):</label>
+                <input type="text" id="functionInput" placeholder="e.g., (x^2 - 1)/(x - 1)" value="(x^2 - 1)/(x - 1)">
+                <small>Use 'x' as variable, ^ for power, sqrt() for square root</small>
+            </div>
+            
+            <div class="input-group">
+                <label for="limitValue">Limit x →</label>
+                <input type="text" id="limitValue" placeholder="e.g., 1, infinity, -infinity" value="1">
+                <small>Enter number, 'infinity', or '-infinity'</small>
+            </div>
+        </div>
+        
+        <button class="calculate-btn" onclick="calculateLimit()">
+            Calculate Limit
+        </button>
+        
+        <div class="examples">
+            <h3>Example Functions:</h3>
+            <ul class="example-list">
+                <li><code>sin(x)/x</code> as x → 0 (limit = 1)</li>
+                <li><code>(x^2 - 4)/(x - 2)</code> as x → 2 (limit = 4)</li>
+                <li><code>1/x</code> as x → 0 (limit does not exist)</li>
+                <li><code>(3*x^2 + 2*x - 1)/(x^2 + 5)</code> as x → infinity (limit = 3)</li>
+                <li><code>sqrt(x + 1) - 1</code> as x → 0 (limit = 0)</li>
+            </ul>
+        </div>
+        
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Calculating limit...</p>
+        </div>
+        
+        <div class="result-section" id="resultSection" style="display: none;">
+            <h3>📊 Limit Calculation Results</h3>
+            <div class="limit-expression" id="limitExpression"></div>
+            <div class="result-content" id="resultContent"></div>
+        </div>
+    </div>
+
+    <script>
+        // Safe evaluation of mathematical expressions
+        function evaluateFunction(funcStr, x) {
+            // Replace common math notations
+            let expression = funcStr
+                .replace(/\^/g, '**')
+                .replace(/sqrt\(/g, 'Math.sqrt(')
+                .replace(/sin\(/g, 'Math.sin(')
+                .replace(/cos\(/g, 'Math.cos(')
+                .replace(/tan\(/g, 'Math.tan(')
+                .replace(/log\(/g, 'Math.log10(')
+                .replace(/ln\(/g, 'Math.log(')
+                .replace(/abs\(/g, 'Math.abs(')
+                .replace(/exp\(/g, 'Math.exp(')
+                .replace(/pi/g, 'Math.PI')
+                .replace(/e/g, 'Math.E');
+            
+            // Replace x with its value
+            expression = expression.replace(/x/g, `(${x})`);
+            
+            try {
+                // Safe evaluation using Function constructor
+                return Function(`'use strict'; return (${expression})`)();
+            } catch (error) {
+                throw new Error(`Error evaluating function at x = ${x}: ${error.message}`);
+            }
+        }
+        
+        // Check if value is approximately equal
+        function isApproximatelyEqual(a, b, tolerance = 1e-10) {
+            if (Math.abs(a - b) < tolerance) return true;
+            if (Math.abs(a) > 1e10 || Math.abs(b) > 1e10) {
+                return Math.abs((a - b) / Math.max(Math.abs(a), Math.abs(b))) < tolerance;
+            }
+            return false;
+        }
+        
+        // Approach limit from left side
+        function approachFromLeft(funcStr, xApproach, tolerance = 1e-10, maxIterations = 1000) {
+            const sequence = [];
+            let h = 0.1;
+            
+            for (let i = 0; i < maxIterations; i++) {
+                const x = xApproach - h;
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                    
+                    if (sequence.length > 2) {
+                        const lastThree = sequence.slice(-3).map(p => p.y);
+                        const converged = lastThree.every((val, idx, arr) => 
+                            idx === arr.length - 1 ? true : Math.abs(val - arr[idx + 1]) < tolerance
+                        );
+                        
+                        if (converged) {
+                            return {
+                                limit: sequence[sequence.length - 1].y,
+                                converged: true,
+                                sequence: sequence
+                            };
+                        }
+                    }
+                    
+                    h *= 0.5;
+                } catch (error) {
+                    h *= 0.5;
+                    continue;
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Approach limit from right side
+        function approachFromRight(funcStr, xApproach, tolerance = 1e-10, maxIterations = 1000) {
+            const sequence = [];
+            let h = 0.1;
+            
+            for (let i = 0; i < maxIterations; i++) {
+                const x = xApproach + h;
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                    
+                    if (sequence.length > 2) {
+                        const lastThree = sequence.slice(-3).map(p => p.y);
+                        const converged = lastThree.every((val, idx, arr) => 
+                            idx === arr.length - 1 ? true : Math.abs(val - arr[idx + 1]) < tolerance
+                        );
+                        
+                        if (converged) {
+                            return {
+                                limit: sequence[sequence.length - 1].y,
+                                converged: true,
+                                sequence: sequence
+                            };
+                        }
+                    }
+                    
+                    h *= 0.5;
+                } catch (error) {
+                    h *= 0.5;
+                    continue;
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Calculate limit at infinity
+        function limitAtInfinity(funcStr, tolerance = 1e-10) {
+            const sequence = [];
+            const xValues = [10, 100, 1000, 10000, 100000];
+            
+            for (const x of xValues) {
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                } catch (error) {
+                    sequence.push({x, y: null});
+                }
+            }
+            
+            const validValues = sequence.filter(p => p.y !== null).map(p => p.y);
+            if (validValues.length >= 2) {
+                const converged = validValues.every((val, idx, arr) => 
+                    idx === arr.length - 1 ? true : isApproximatelyEqual(val, arr[idx + 1], tolerance)
+                );
+                
+                if (converged) {
+                    return {
+                        limit: validValues[validValues.length - 1],
+                        converged: true,
+                        approach: "infinity",
+                        sequence: sequence
+                    };
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Calculate limit at negative infinity
+        function limitAtNegativeInfinity(funcStr, tolerance = 1e-10) {
+            const sequence = [];
+            const xValues = [-10, -100, -1000, -10000, -100000];
+            
+            for (const x of xValues) {
+                try {
+                    const y = evaluateFunction(funcStr, x);
+                    sequence.push({x, y});
+                } catch (error) {
+                    sequence.push({x, y: null});
+                }
+            }
+            
+            const validValues = sequence.filter(p => p.y !== null).map(p => p.y);
+            if (validValues.length >= 2) {
+                const converged = validValues.every((val, idx, arr) => 
+                    idx === arr.length - 1 ? true : isApproximatelyEqual(val, arr[idx + 1], tolerance)
+                );
+                
+                if (converged) {
+                    return {
+                        limit: validValues[validValues.length - 1],
+                        converged: true,
+                        approach: "-infinity",
+                        sequence: sequence
+                    };
+                }
+            }
+            
+            return {limit: null, converged: false, sequence: sequence};
+        }
+        
+        // Main function to calculate limit
+        function calculateLimit() {
+            const funcInput = document.getElementById('functionInput').value.trim();
+            const limitValueInput = document.getElementById('limitValue').value.trim();
+            const resultSection = document.getElementById('resultSection');
+            const limitExpression = document.getElementById('limitExpression');
+            const resultContent = document.getElementById('resultContent');
+            const loading = document.getElementById('loading');
+            
+            // Validate inputs
+            if (!funcInput) {
+                alert('Please enter a function');
+                return;
+            }
+            
+            if (!limitValueInput) {
+                alert('Please enter a limit value');
+                return;
+            }
+            
+            // Show loading
+            loading.style.display = 'block';
+            resultSection.style.display = 'none';
+            
+            // Parse limit value
+            let xApproach;
+            let isInfinity = false;
+            let isNegativeInfinity = false;
+            
+            if (limitValueInput.toLowerCase() === 'infinity') {
+                isInfinity = true;
+            } else if (limitValueInput.toLowerCase() === '-infinity') {
+                isNegativeInfinity = true;
+            } else {
+                xApproach = parseFloat(limitValueInput);
+                if (isNaN(xApproach)) {
+                    loading.style.display = 'none';
+                    alert('Please enter a valid number for the limit value');
+                    return;
+                }
+            }
+            
+            // Calculate after a short delay to show loading
+            setTimeout(() => {
+                try {
+                    let result;
+                    let leftResult, rightResult;
+                    
+                    // Display the limit expression
+                    limitExpression.innerHTML = `lim<sub>x → ${limitValueInput}</sub> ${funcInput}`;
+                    
+                    // Calculate based on limit type
+                    if (isInfinity) {
+                        result = limitAtInfinity(funcInput);
+                        resultContent.innerHTML = formatResult(result, 'infinity');
+                    } else if (isNegativeInfinity) {
+                        result = limitAtNegativeInfinity(funcInput);
+                        resultContent.innerHTML = formatResult(result, '-infinity');
+                    } else {
+                        leftResult = approachFromLeft(funcInput, xApproach);
+                        rightResult = approachFromRight(funcInput, xApproach);
+                        
+                        let message = '';
+                        if (leftResult.converged && rightResult.converged) {
+                            if (isApproximatelyEqual(leftResult.limit, rightResult.limit)) {
+                                result = {
+                                    limit: (leftResult.limit + rightResult.limit) / 2,
+                                    converged: true,
+                                    leftSequence: leftResult.sequence,
+                                    rightSequence: rightResult.sequence
+                                };
+                                message = `<span class="success">✓ Limit exists</span>`;
+                            } else {
+                                message = `<span class="error">✗ Limit does not exist (left and right limits differ)</span>`;
+                            }
+                        } else if (leftResult.converged && !rightResult.converged) {
+                            message = `<span class="warning">⚠ Only left limit exists</span>`;
+                        } else if (!leftResult.converged && rightResult.converged) {
+                            message = `<span class="warning">⚠ Only right limit exists</span>`;
+                        } else {
+                            message = `<span class="error">✗ Limit could not be determined</span>`;
+                        }
+                        
+                        resultContent.innerHTML = formatTwoSidedResult(leftResult, rightResult, xApproach, message);
+                    }
+                    
+                    // Show results
+                    loading.style.display = 'none';
+                    resultSection.style.display = 'block';
+                    
+                } catch (error) {
+                    loading.style.display = 'none';
+                    resultContent.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+                    resultSection.style.display = 'block';
+                }
+            }, 500);
+        }
+        
+        // Format result for display
+        function formatResult(result, approachType) {
+            let html = '';
+            
+            if (result.converged) {
+                html += `<div class="step">
+                    <div class="step-title">Result:</div>
+                    <span class="success">Limit = ${result.limit.toFixed(6)}</span>
+                </div>`;
+                
+                html += `<div class="step">
+                    <div class="step-title">Approach Sequence (x → ${approachType}):</div>`;
+                
+                result.sequence.forEach((point, index) => {
+                    if (point.y !== null) {
+                        html += `x = ${point.x}, f(x) = ${point.y.toFixed(6)}<br>`;
+                    }
+                });
+                
+                html += `</div>`;
+            } else {
+                html += `<div class="step">
+                    <div class="step-title">Result:</div>
+                    <span class="error">Limit does not converge</span>
+                </div>`;
+            }
+            
+            return html;
+        }
+        
+        // Format two-sided result for display
+        function formatTwoSidedResult(leftResult, rightResult, xApproach, message) {
+            let html = `<div class="step">
+                <div class="step-title">Result:</div>
+                ${message}
+            </div>`;
+            
+            if (leftResult.converged || rightResult.converged) {
+                if (leftResult.converged && rightResult.converged) {
+                    html += `<div class="step">
+                        <div class="step-title">Left Limit (x → ${xApproach}⁻):</div>
+                        <span class="success">${leftResult.limit.toFixed(6)}</span>
+                    </div>`;
+                    
+                    html += `<div class="step">
+                        <div class="step-title">Right Limit (x → ${xApproach}⁺):</div>
+                        <span class="success">${rightResult.limit.toFixed(6)}</span>
+                    </div>`;
+                    
+                    html += `<div class="step">
+                        <div class="step-title">Final Limit:</div>
+                        <span class="success">${((leftResult.limit + rightResult.limit) / 2).toFixed(6)}</span>
+                    </div>`;
+                } else if (leftResult.converged) {
+                    html += `<div class="step">
+                        <div class="step-title">Left Limit (x → ${xApproach}⁻):</div>
+                        <span class="success">${leftResult.limit.toFixed(6)}</span>
+                    </div>`;
+                } else if (rightResult.converged) {
+                    html += `<div class="step">
+                        <div class="step-title">Right Limit (x → ${xApproach}⁺):</div>
+                        <span class="success">${rightResult.limit.toFixed(6)}</span>
+                    </div>`;
+                }
+            }
+            
+            return html;
+        }
+        
+        // Example usage on page load
+        window.onload = function() {
+            // You can auto-calculate an example on load if desired
+            // calculateLimit();
+        };
+    </script>
+</body>
+</html>
