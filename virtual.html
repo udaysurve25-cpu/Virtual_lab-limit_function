@@ -1,1 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limits and Functions - Learning Portal</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        /* Fixed Header */
+        .fixed-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(135deg, #2c3e50, #1a2530);
+            color: white;
+            padding: 15px 0;
+            text-align: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-title {
+            font-size: 1.8rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .header-title i {
+            margin-right: 10px;
+            color: #4dabf7;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 100px auto 30px;
+            padding: 0 20px;
+        }
+
+        /* College Logo Area */
+        .logo-section {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            margin-bottom: 30px;
+        }
+
+        .logo-container {
+            width: 120px;
+            height: 120px;
+            background-color: #f8f9fa;
+            border: 2px dashed #adb5bd;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #6c757d;
+            margin-right: 30px;
+            flex-shrink: 0;
+        }
+
+        .logo-container i {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            color: #2c3e50;
+        }
+
+        .logo-info h3 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+
+        .logo-info p {
+            color: #6c757d;
+            max-width: 600px;
+        }
+
+        /* Tabs Navigation */
+        .tabs-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+        }
+
+        .tabs-header {
+            display: flex;
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            overflow-x: auto;
+        }
+
+        .tab-btn {
+            padding: 18px 25px;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            font-weight: 500;
+            color: #495057;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn:hover {
+            background-color: #e9ecef;
+            color: #2c3e50;
+        }
+
+        .tab-btn.active {
+            color: #2c3e50;
+            border-bottom: 3px solid #4dabf7;
+            background-color: white;
+        }
+
+        .tab-btn i {
+            margin-right: 8px;
+        }
+
+        /* Tab Content */
+        .tab-content {
+            padding: 30px;
+            min-height: 400px;
+        }
+
+        .tab-panel {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-panel.active {
+            display: block;
+        }
+
+        .tab-panel h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f1f3f5;
+        }
+
+        .tab-panel p {
+            margin-bottom: 15px;
+            color: #495057;
+        }
+
+        .tab-panel ul {
+            padding-left: 20px;
+            margin-bottom: 20px;
+        }
+
+        .tab-panel li {
+            margin-bottom: 8px;
+        }
+
+        /* Simulation Specific */
+        .simulation-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .graph-placeholder {
+            height: 300px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid #e9ecef;
+        }
+
+        .graph-placeholder i {
+            font-size: 4rem;
+            color: #adb5bd;
+            margin-bottom: 15px;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            min-width: 200px;
+        }
+
+        .control-group label {
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .control-group input {
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        .simulate-btn {
+            background-color: #4dabf7;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            align-self: flex-end;
+        }
+
+        .simulate-btn:hover {
+            background-color: #339af0;
+        }
+
+        /* References Specific */
+        .reference-item {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4dabf7;
+        }
+
+        /* Contributors Specific */
+        .contributors-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .contributor-card {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .contributor-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .contributor-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background-color: #e9ecef;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 15px;
+            font-size: 2.5rem;
+            color: #495057;
+        }
+
+        /* Feedback Form */
+        .feedback-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #495057;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .submit-btn {
+            background-color: #40c057;
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            border-radius: 4px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            align-self: flex-start;
+        }
+
+        .submit-btn:hover {
+            background-color: #37b24d;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 20px;
+            margin-top: 40px;
+            color: #6c757d;
+            font-size: 0.9rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .container {
+                margin-top: 140px;
+            }
+
+            .logo-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .logo-container {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+
+            .tabs-header {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                flex: 1;
+                min-width: 120px;
+                text-align: center;
+            }
+
+            .contributors-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed Header -->
+    <header class="fixed-header">
+        <div class="header-content">
+            <div class="header-title">
+                <i class="fas fa-infinity"></i> Limits and Functions
+            </div>
+            <div class="header-subtitle">
+                Interactive Learning Portal
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container">
+        <!-- College Logo Section -->
+        <section class="logo-section">
+            <div class="logo-container">
+                <i class="fas fa-university"></i>
+                <span>College Logo</span>
+            </div>
+            <div class="logo-info">
+                <h3>Mathematics Department</h3>
+                <p>This interactive learning portal is designed to help students understand the fundamental concepts of limits and functions in calculus. The content is structured to provide a comprehensive learning experience from theory to practical application.</p>
+            </div>
+        </section>
+
+        <!-- Tabs Section -->
+        <div class="tabs-container">
+            <div class="tabs-header">
+                <button class="tab-btn active" data-tab="home">
+                    <i class="fas fa-home"></i> Home
+                </button>
+                <button class="tab-btn" data-tab="aim">
+                    <i class="fas fa-bullseye"></i> Aim
+                </button>
+                <button class="tab-btn" data-tab="theory">
+                    <i class="fas fa-book"></i> Theory
+                </button>
+                <button class="tab-btn" data-tab="simulation">
+                    <i class="fas fa-sliders-h"></i> Simulation
+                </button>
+                <button class="tab-btn" data-tab="references">
+                    <i class="fas fa-link"></i> References
+                </button>
+                <button class="tab-btn" data-tab="contributors">
+                    <i class="fas fa-users"></i> Contributors
+                </button>
+                <button class="tab-btn" data-tab="feedback">
+                    <i class="fas fa-comment-alt"></i> Feedback
+                </button>
+            </div>
+
+            <div class="tab-content">
+                <!-- Home Tab -->
+                <div class="tab-panel active" id="home">
+                    <h2>Welcome to Limits and Functions Learning Portal</h2>
+                    <p>This interactive platform is designed to facilitate a comprehensive understanding of limits and functions, which are fundamental concepts in calculus and mathematical analysis.</p>
+                    
+                    <p>The portal is divided into several sections:</p>
+                    <ul>
+                        <li><strong>Aim:</strong> Understand the learning objectives of this module</li>
+                        <li><strong>Theory:</strong> Study the theoretical foundations of limits and functions</li>
+                        <li><strong>Simulation:</strong> Experiment with interactive simulations to visualize concepts</li>
+                        <li><strong>References:</strong> Access additional learning materials and resources</li>
+                        <li><strong>Contributors:</strong> Learn about the team behind this project</li>
+                        <li><strong>Feedback:</strong> Share your thoughts to help us improve</li>
+                    </ul>
+                    
+                    <p>To get started, navigate through the tabs above to explore different sections of the learning module. The simulation tab offers an interactive way to understand how limits work in different functions.</p>
+                    
+                    <div style="background-color: #e7f5ff; padding: 20px; border-radius: 8px; margin-top: 25px;">
+                        <h3><i class="fas fa-lightbulb"></i> Quick Tip</h3>
+                        <p>Start with the Theory section if you're new to limits and functions. Then use the Simulation section to visualize the concepts you've learned.</p>
+                    </div>
+                </div>
+
+                <!-- Aim Tab -->
+                <div class="tab-panel" id="aim">
+                    <h2>Learning Objectives</h2>
+                    <p>The primary aim of this module is to provide students with a solid understanding of limits and functions, which serve as the foundation for differential and integral calculus.</p>
+                    
+                    <p>By the end of this module, students should be able to:</p>
+                    <ul>
+                        <li>Understand the concept of a limit and its notation</li>
+                        <li>Evaluate limits of functions algebraically and graphically</li>
+                        <li>Identify different types of discontinuities in functions</li>
+                        <li>Apply the concept of limits to determine function continuity</li>
+                        <li>Understand one-sided limits and their significance</li>
+                        <li>Apply limit laws to evaluate complex limits</li>
+                        <li>Use the Squeeze Theorem to evaluate certain limits</li>
+                        <li>Understand limits at infinity and infinite limits</li>
+                    </ul>
+                    
+                    <p>This module combines theoretical explanations with interactive simulations to cater to different learning styles and help build intuition about these important mathematical concepts.</p>
+                </div>
+
+                <!-- Theory Tab -->
+                <div class="tab-panel" id="theory">
+                    <h2>Theoretical Foundations</h2>
+                    <p>The concept of a limit is fundamental to calculus and mathematical analysis. It describes the behavior of a function as its argument approaches a particular value.</p>
+                    
+                    <h3>Definition of a Limit</h3>
+                    <p>Formally, we say that the limit of f(x) as x approaches a is L, written as:</p>
+                    <p style="text-align: center; font-family: 'Courier New', monospace; font-size: 1.2rem; background-color: #f8f9fa; padding: 15px; border-radius: 5px;">
+                        lim<sub>x→a</sub> f(x) = L
+                    </p>
+                    <p>if for every ε > 0, there exists a δ > 0 such that if 0 < |x - a| < δ, then |f(x) - L| < ε.</p>
+                    
+                    <h3>Types of Limits</h3>
+                    <ul>
+                        <li><strong>Two-sided limits:</strong> The function approaches the same value from both sides</li>
+                        <li><strong>One-sided limits:</strong> Limits approached from either the left (x→a⁻) or right (x→a⁺)</li>
+                        <li><strong>Infinite limits:</strong> The function increases or decreases without bound</li>
+                        <li><strong>Limits at infinity:</strong> The behavior of a function as x approaches ∞ or -∞</li>
+                    </ul>
+                    
+                    <h3>Continuity</h3>
+                    <p>A function f is continuous at a point a if:</p>
+                    <ol>
+                        <li>f(a) is defined</li>
+                        <li>lim<sub>x→a</sub> f(x) exists</li>
+                        <li>lim<sub>x→a</sub> f(x) = f(a)</li>
+                    </ol>
+                    
+                    <p>Understanding these concepts is crucial for further study in calculus, including derivatives and integrals.</p>
+                </div>
+
+                <!-- Simulation Tab -->
+                <div class="tab-panel" id="simulation">
+                    <h2>Interactive Limit Simulation</h2>
+                    <p>Use the simulation below to visualize how limits work for different functions. Adjust the parameters and observe how the function behavior changes as it approaches a specific point.</p>
+                    
+                    <div class="simulation-container">
+                        <div class="graph-placeholder">
+                            <i class="fas fa-chart-line"></i>
+                            <p>Function Graph Visualization</p>
+                            <p>Adjust the parameters below to see how the limit changes</p>
+                        </div>
+                        
+                        <div class="controls">
+                            <div class="control-group">
+                                <label for="function-select">Select Function</label>
+                                <select id="function-select">
+                                    <option value="linear">Linear: f(x) = 2x + 1</option>
+                                    <option value="quadratic">Quadratic: f(x) = x²</option>
+                                    <option value="rational">Rational: f(x) = (x² - 1)/(x - 1)</option>
+                                    <option value="trigonometric">Trigonometric: f(x) = sin(x)/x</option>
+                                </select>
+                            </div>
+                            
+                            <div class="control-group">
+                                <label for="limit-point">Approach Point (a)</label>
+                                <input type="number" id="limit-point" value="1" step="0.5">
+                            </div>
+                            
+                            <div class="control-group">
+                                <label for="epsilon">Epsilon (ε) Value</label>
+                                <input type="number" id="epsilon" value="0.1" step="0.05" min="0.01">
+                            </div>
+                            
+                            <button class="simulate-btn" id="run-simulation">
+                                <i class="fas fa-play"></i> Run Simulation
+                            </button>
+                        </div>
+                        
+                        <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px;">
+                            <h3>Simulation Results</h3>
+                            <p>Limit Value: <span id="limit-value">Calculating...</span></p>
+                            <p>Continuity at point: <span id="continuity-result">Checking...</span></p>
+                            <p>Observations: <span id="observations">The simulation will show how the function behaves as it approaches the selected point.</span></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- References Tab -->
+                <div class="tab-panel" id="references">
+                    <h2>References and Further Reading</h2>
+                    
+                    <div class="reference-item">
+                        <h3>Textbooks</h3>
+                        <p><strong>Calculus: Early Transcendentals</strong> by James Stewart</p>
+                        <p><strong>Calculus</strong> by Michael Spivak</p>
+                        <p><strong>Thomas' Calculus</strong> by George B. Thomas et al.</p>
+                    </div>
+                    
+                    <div class="reference-item">
+                        <h3>Online Resources</h3>
+                        <p><strong>Khan Academy:</strong> Limits and continuity modules</p>
+                        <p><strong>MIT OpenCourseWare:</strong> Single Variable Calculus course</p>
+                        <p><strong>Paul's Online Math Notes:</strong> Limits chapter</p>
+                    </div>
+                    
+                    <div class="reference-item">
+                        <h3>Research Papers</h3>
+                        <p><strong>Historical Development of the Concept of Limit</strong> by J. Grabiner</p>
+                        <p><strong>Teaching Limits for Understanding</strong> by D. Tall</p>
+                        <p><strong>Visualization in Calculus Education</strong> by R. Zazkis et al.</p>
+                    </div>
+                    
+                    <div class="reference-item">
+                        <h3>Interactive Tools</h3>
+                        <p><strong>Desmos Graphing Calculator:</strong> Online tool for visualizing functions and limits</p>
+                        <p><strong>GeoGebra:</strong> Dynamic mathematics software with limit demonstrations</p>
+                        <p><strong>Wolfram Alpha:</strong> Computational knowledge engine for limit calculations</p>
+                    </div>
+                </div>
+
+                <!-- Contributors Tab -->
+                <div class="tab-panel" id="contributors">
+                    <h2>Project Contributors</h2>
+                    <p>This interactive learning module was developed by a team of educators, developers, and mathematicians dedicated to improving calculus education.</p>
+                    
+                    <div class="contributors-grid">
+                        <div class="contributor-card">
+                            <div class="contributor-avatar">
+                                <i class="fas fa-user-tie"></i>
+                            </div>
+                            <h3>Dr. Sarah Johnson</h3>
+                            <p>Mathematics Professor</p>
+                            <p>Content Development</p>
+                        </div>
+                        
+                        <div class="contributor-card">
+                            <div class="contributor-avatar">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <h3>Alex Chen</h3>
+                            <p>Software Developer</p>
+                            <p>Interactive Simulations</p>
+                        </div>
+                        
+                        <div class="contributor-card">
+                            <div class="contributor-avatar">
+                                <i class="fas fa-paint-brush"></i>
+                            </div>
+                            <h3>Maria Rodriguez</h3>
+                            <p>UI/UX Designer</p>
+                            <p>Interface Design</p>
+                        </div>
+                        
+                        <div class="contributor-card">
+                            <div class="contributor-avatar">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <h3>Prof. David Wilson</h3>
+                            <p>Educational Consultant</p>
+                            <p>Pedagogical Approach</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Feedback Tab -->
+                <div class="tab-panel" id="feedback">
+                    <h2>Share Your Feedback</h2>
+                    <p>We value your input to improve this learning portal. Please share your experience, suggestions, or report any issues you've encountered.</p>
+                    
+                    <form class="feedback-form" id="feedbackForm">
+                        <div class="form-group">
+                            <label for="name">Your Name</label>
+                            <input type="text" id="name" placeholder="Enter your name">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" placeholder="Enter your email">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="category">Feedback Category</label>
+                            <select id="category">
+                                <option value="general">General Feedback</option>
+                                <option value="content">Content Suggestion</option>
+                                <option value="technical">Technical Issue</option>
+                                <option value="simulation">Simulation Feedback</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">Your Feedback</label>
+                            <textarea id="message" placeholder="Please share your feedback here..."></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="rating">Overall Rating</label>
+                            <select id="rating">
+                                <option value="5">Excellent</option>
+                                <option value="4">Very Good</option>
+                                <option value="3">Good</option>
+                                <option value="2">Fair</option>
+                                <option value="1">Poor</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="submit-btn">
+                            <i class="fas fa-paper-plane"></i> Submit Feedback
+                        </button>
+                    </form>
+                    
+                    <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin-top: 30px;">
+                        <h3><i class="fas fa-envelope"></i> Contact Information</h3>
+                        <p>For urgent matters or detailed inquiries, you can also contact us directly:</p>
+                        <p>Email: mathematics.dept@college.edu</p>
+                        <p>Phone: +1 (555) 123-4567</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Limits and Functions Learning Portal &copy; 2023 | Mathematics Department | Designed for Educational Purposes</p>
+    </footer>
+
+    <script>
+        // Tab functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tabPanels = document.querySelectorAll('.tab-panel');
+            
+            // Function to switch tabs
+            function switchTab(tabId) {
+                // Remove active class from all buttons and panels
+                tabButtons.forEach(button => {
+                    button.classList.remove('active');
+                });
+                
+                tabPanels.forEach(panel => {
+                    panel.classList.remove('active');
+                });
+                
+                // Add active class to clicked button and corresponding panel
+                const activeButton = document.querySelector(`.tab-btn[data-tab="${tabId}"]`);
+                const activePanel = document.getElementById(tabId);
+                
+                if (activeButton) activeButton.classList.add('active');
+                if (activePanel) activePanel.classList.add('active');
+            }
+            
+            // Add click event listeners to tab buttons
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    switchTab(tabId);
+                });
+            });
+            
+            // Simulation functionality
+            const simulateBtn = document.getElementById('run-simulation');
+            const limitValue = document.getElementById('limit-value');
+            const continuityResult = document.getElementById('continuity-result');
+            const observations = document.getElementById('observations');
+            
+            simulateBtn.addEventListener('click', function() {
+                // Show loading state
+                limitValue.textContent = 'Calculating...';
+                continuityResult.textContent = 'Checking...';
+                observations.textContent = 'Running simulation...';
+                
+                // Simulate calculation delay
+                setTimeout(function() {
+                    const functionType = document.getElementById('function-select').value;
+                    const point = parseFloat(document.getElementById('limit-point').value);
+                    
+                    // Calculate limit based on selected function
+                    let limit = 0;
+                    let continuity = "Continuous";
+                    
+                    switch(functionType) {
+                        case 'linear':
+                            limit = 2 * point + 1;
+                            continuity = "Continuous";
+                            observations.textContent = "Linear functions are continuous everywhere. The limit equals the function value at the point.";
+                            break;
+                        case 'quadratic':
+                            limit = point * point;
+                            continuity = "Continuous";
+                            observations.textContent = "Quadratic functions are continuous everywhere. The limit equals the function value at the point.";
+                            break;
+                        case 'rational':
+                            if (point === 1) {
+                                limit = 2; // lim(x→1) (x²-1)/(x-1) = lim(x→1) (x+1) = 2
+                                continuity = "Has removable discontinuity at x=1";
+                                observations.textContent = "This rational function has a hole at x=1 but the limit exists and equals 2.";
+                            } else {
+                                limit = (point * point - 1) / (point - 1);
+                                continuity = "Continuous at this point";
+                                observations.textContent = "The function is continuous at the selected point.";
+                            }
+                            break;
+                        case 'trigonometric':
+                            if (point === 0) {
+                                limit = 1; // lim(x→0) sin(x)/x = 1
+                                continuity = "Continuous at x=0";
+                                observations.textContent = "This is a fundamental trigonometric limit. The function has a removable discontinuity at x=0.";
+                            } else {
+                                limit = Math.sin(point) / point;
+                                continuity = "Continuous at this point";
+                                observations.textContent = "The function is continuous at the selected point.";
+                            }
+                            break;
+                    }
+                    
+                    // Update results
+                    limitValue.textContent = limit.toFixed(4);
+                    continuityResult.textContent = continuity;
+                    
+                    // Add animation effect
+                    simulateBtn.innerHTML = '<i class="fas fa-check"></i> Simulation Complete';
+                    simulateBtn.style.backgroundColor = '#40c057';
+                    
+                    setTimeout(function() {
+                        simulateBtn.innerHTML = '<i class="fas fa-play"></i> Run Simulation';
+                        simulateBtn.style.backgroundColor = '';
+                    }, 2000);
+                    
+                }, 800);
+            });
+            
+            // Feedback form submission
+            const feedbackForm = document.getElementById('feedbackForm');
+            feedbackForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('name').value;
+                const category = document.getElementById('category').value;
+                
+                if (!name) {
+                    alert('Please enter your name before submitting feedback.');
+                    return;
+                }
+                
+                // Show success message
+                const submitBtn = feedbackForm.querySelector('.submit-btn');
+                const originalText = submitBtn.innerHTML;
+                
+                submitBtn.innerHTML = '<i class="fas fa-check"></i> Thank You!';
+                submitBtn.style.backgroundColor = '#40c057';
+                
+                // Reset form
+                feedbackForm.reset();
+                
+                // Reset button after 3 seconds
+                setTimeout(function() {
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.style.backgroundColor = '';
+                }, 3000);
+                
+                console.log('Feedback submitted:', { name, category });
+            });
+        });
+    </script>
+</body>
+</html>
