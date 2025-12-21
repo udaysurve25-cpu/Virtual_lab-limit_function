@@ -1,1 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Limit Solver with Specific Value & Graph</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://unpkg.com/mathjs@11.6.0/lib/browser/math.js"></script>
+    <style>
+        /* ... (keep all existing styles) ... */
+        
+        .no-graph-message {
+            background: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 15px;
+            padding: 40px 20px;
+            text-align: center;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .no-graph-message i {
+            font-size: 3rem;
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+        
+        .no-graph-message h3 {
+            color: #6c757d;
+            margin-bottom: 10px;
+        }
+        
+        .no-graph-message p {
+            color: #6c757d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-infinity"></i> Limit Solver with Graph</h1>
+            <p class="subtitle">Calculate the limit at a specific point with graphical visualization</p>
+        </header>
+
+        <div class="main-content">
+            <!-- Calculator Panel -->
+            <div class="calculator-panel">
+                <!-- ... (keep calculator panel content) ... -->
+            </div>
+
+            <!-- Graph Panel -->
+            <div class="graph-panel">
+                <div class="panel-title">
+                    <i class="fas fa-chart-line"></i> Graphical Representation
+                </div>
+                
+                <div class="zoom-controls">
+                    <button class="zoom-btn" id="zoom-in">+</button>
+                    <button class="zoom-btn" id="zoom-out">-</button>
+                    <button class="zoom-btn" id="reset-zoom"><i class="fas fa-sync-alt"></i></button>
+                </div>
+                
+                <!-- No Graph Message -->
+                <div id="no-graph-message" class="no-graph-message">
+                    <i class="fas fa-ban"></i>
+                    <h3>Graph Not Available</h3>
+                    <p>The limit is undefined at this point. Graph cannot be displayed for undefined limits.</p>
+                    <p>Try a different function or limit point where the limit exists.</p>
+                </div>
+                
+                <!-- Graph Container (hidden when limit is undefined) -->
+                <div id="graph-container-wrapper" class="graph-container">
+                    <canvas id="functionChart"></canvas>
+                </div>
+
+                <div id="graph-legend" class="graph-legend" style="display: none;">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #667eea;"></div>
+                        <span>Function f(x)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #f5576c;"></div>
+                        <span>Limit Point</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #4facfe;"></div>
+                        <span>Approach from Left</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #00f2fe;"></div>
+                        <span>Approach from Right</span>
+                    </div>
+                </div>
+
+                <div id="limit-point-details" class="limit-point-details" style="display: none;">
+                    <h4><i class="fas fa-info-circle"></i> Limit Point Information</h4>
+                    <p id="limit-detail-text">Click "Calculate Limit" to see detailed information about the limit point...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Examples Section -->
+        <div class="examples-section">
+            <div class="panel-title">
+                <i class="fas fa-lightbulb"></i> Example Limits at Specific Points
+            </div>
+            <div class="examples-grid">
+                <div class="example-card" data-fn="sin(x)/x" data-point="0">
+                    <h4>sin(x)/x at x=0</h4>
+                    <p>lim(x→0) sin(x)/x</p>
+                    <p class="result">Result: 1</p>
+                    <p>Standard trigonometric limit</p>
+                </div>
+                <div class="example-card" data-fn="(x^2-1)/(x-1)" data-point="1">
+                    <h4>Rational Function at x=1</h4>
+                    <p>lim(x→1) (x²-1)/(x-1)</p>
+                    <p class="result">Result: 2</p>
+                    <p>Removable discontinuity</p>
+                </div>
+                <div class="example-card" data-fn="x^2" data-point="2">
+                    <h4>Quadratic at x=2</h4>
+                    <p>lim(x→2) x²</p>
+                    <p class="result">Result: 4</p>
+                    <p>Continuous function</p>
+                </div>
+                <div class="example-card" data-fn="1/x" data-point="0">
+                    <h4>Hyperbola at x=0</h4>
+                    <p>lim(x→0) 1/x</p>
+                    <p class="result">Result: ∞</p>
+                    <p>Vertical asymptote</p>
+                </div>
+                <!-- REMOVED: abs(x)/x example -->
+                <div class="example-card" data-fn="sqrt(x)" data-point="4">
+                    <h4>Square Root at x=4</h4>
+                    <p>lim(x→4) √x</p>
+                    <p class="result">Result: 2</p>
+                    <p>Continuous at point</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Help Section -->
+        <div class="help-section">
+            <!-- ... (keep help section content) ... -->
+        </div>
+    </div>
+
+    <footer>
+        <p>Limit Solver with Graph &copy; 2024 | Calculate limits at specific points</p>
+        <p style="font-size: 0.9rem; margin-top: 10px;">Enter function and point to see limit value and visual representation</p>
+    </footer>
+
+    <script>
+        // Global variables
+        let functionChart = null;
+        
+        // Initialize math.js
+        const math = window.math;
+
+        // Initialize Chart.js
+        function initializeChart() {
+            const ctx = document.getElementById('functionChart').getContext('2d');
+            
+            functionChart = new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [
+                        {
+                            label: 'Function f(x)',
+                            data: [],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            borderWidth: 3,
+                            fill: false,
+                            tension: 0.4,
+                            pointRadius: 0,
+                            showLine: true
+                        },
+                        {
+                            label: 'Limit Point',
+                            data: [],
+                            borderColor: '#f5576c',
+                            backgroundColor: '#f5576c',
+                            borderWidth: 2,
+                            pointRadius: 8,
+                            pointStyle: 'circle',
+                            showLine: false
+                        },
+                        {
+                            label: 'Approach from Left',
+                            data: [],
+                            borderColor: '#4facfe',
+                            backgroundColor: 'rgba(79, 172, 254, 0.2)',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            showLine: false,
+                            fill: false
+                        },
+                        {
+                            label: 'Approach from Right',
+                            data: [],
+                            borderColor: '#00f2fe',
+                            backgroundColor: 'rgba(0, 242, 254, 0.2)',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            showLine: false,
+                            fill: false
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom',
+                            title: {
+                                display: true,
+                                text: 'x',
+                                color: '#2c3e50',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'f(x)',
+                                color: '#2c3e50',
+                                font: {
+                                    size: 14,
+                                    weight: 'bold'
+                                }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false,
+                            position: 'top',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    size: 12
+                                }
+                            }
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y.toFixed(4);
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Parse limit point input
+        function parseLimitPoint(pointStr) {
+            pointStr = pointStr.trim().toLowerCase();
+            
+            // Try to parse as number
+            const num = parseFloat(pointStr);
+            if (!isNaN(num)) {
+                return num;
+            }
+            
+            // Try to parse mathematical expression
+            try {
+                return math.evaluate(pointStr);
+            } catch (e) {
+                return 0;
+            }
+        }
+
+        // Evaluate function at a point
+        function evaluateFunction(fn, x) {
+            try {
+                // Replace common notations
+                let cleanFn = fn.replace(/\^/g, '**');
+                cleanFn = cleanFn.replace(/e\^(\w+)/g, 'exp($1)');
+                cleanFn = cleanFn.replace(/ln/g, 'log');
+                
+                // Create scope with x value
+                const scope = { x: x };
+                
+                // Evaluate using math.js
+                const result = math.evaluate(cleanFn, scope);
+                
+                // Handle special cases
+                if (Math.abs(result) > 1e10) {
+                    return result > 0 ? Infinity : -Infinity;
+                }
+                
+                return result;
+            } catch (error) {
+                return undefined;
+            }
+        }
+
+        // Calculate limit at a specific point
+        function calculateLimitAtPoint(fn, point) {
+            const epsilon = 1e-8;
+            
+            try {
+                // First try direct evaluation
+                const directValue = evaluateFunction(fn, point);
+                if (directValue !== undefined && !isNaN(directValue)) {
+                    // Function is defined at the point
+                    return {
+                        value: directValue,
+                        exists: true,
+                        type: 'defined',
+                        message: 'Function is defined at this point'
+                    };
+                }
+                
+                // Calculate left and right limits
+                let leftValues = [];
+                let rightValues = [];
+                const hValues = [1e-2, 1e-3, 1e-4, 1e-5, 1e-6];
+                
+                for (const h of hValues) {
+                    const leftVal = evaluateFunction(fn, point - h);
+                    const rightVal = evaluateFunction(fn, point + h);
+                    
+                    if (leftVal !== undefined) leftValues.push(leftVal);
+                    if (rightVal !== undefined) rightValues.push(rightVal);
+                }
+                
+                if (leftValues.length === 0 && rightValues.length === 0) {
+                    return {
+                        value: undefined,
+                        exists: false,
+                        type: 'undefined',
+                        message: 'Function undefined around this point'
+                    };
+                }
+                
+                // Analyze trends
+                const analyzeSide = (values) => {
+                    if (values.length === 0) return { exists: false, value: undefined };
+                    
+                    // Check for infinity
+                    const hasInfinity = values.some(v => Math.abs(v) > 1e10);
+                    if (hasInfinity) {
+                        const allPositive = values.every(v => v > 0 || v === Infinity);
+                        const allNegative = values.every(v => v < 0 || v === -Infinity);
+                        if (allPositive) return { exists: true, value: Infinity };
+                        if (allNegative) return { exists: true, value: -Infinity };
+                        return { exists: false, value: undefined };
+                    }
+                    
+                    // Check if values are converging
+                    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+                    const variance = values.reduce((a, b) => a + Math.pow(b - avg, 2), 0) / values.length;
+                    
+                    if (variance < epsilon) {
+                        return { exists: true, value: avg };
+                    }
+                    
+                    return { exists: false, value: undefined };
+                };
+                
+                const leftAnalysis = analyzeSide(leftValues);
+                const rightAnalysis = analyzeSide(rightValues);
+                
+                if (leftAnalysis.exists && rightAnalysis.exists) {
+                    if (Math.abs(leftAnalysis.value - rightAnalysis.value) < epsilon) {
+                        return {
+                            value: (leftAnalysis.value + rightAnalysis.value) / 2,
+                            exists: true,
+                            type: 'defined',
+                            message: 'Limit exists (left = right)'
+                        };
+                    } else if (Math.abs(leftAnalysis.value) > 1e10 && Math.abs(rightAnalysis.value) > 1e10) {
+                        // Both sides go to infinity
+                        if (leftAnalysis.value > 0 && rightAnalysis.value > 0) {
+                            return {
+                                value: Infinity,
+                                exists: true,
+                                type: 'infinite',
+                                message: 'Both sides approach +∞'
+                            };
+                        } else if (leftAnalysis.value < 0 && rightAnalysis.value < 0) {
+                            return {
+                                value: -Infinity,
+                                exists: true,
+                                type: 'infinite',
+                                message: 'Both sides approach -∞'
+                            };
+                        }
+                    }
+                }
+                
+                return {
+                    value: undefined,
+                    exists: false,
+                    type: 'undefined',
+                    message: 'Left and right limits do not match'
+                };
+                
+            } catch (error) {
+                return {
+                    value: undefined,
+                    exists: false,
+                    type: 'error',
+                    message: 'Error calculating limit: ' + error.message
+                };
+            }
+        }
+
+        // Generate graph data for a specific point
+        function generateGraphData(fn, point) {
+            // Determine viewing window based on point
+            let xMin, xMax;
+            
+            if (Math.abs(point) < 10) {
+                xMin = point - 3;
+                xMax = point + 3;
+            } else {
+                xMin = point * 0.7;
+                xMax = point * 1.3;
+            }
+            
+            // Ensure minimum range
+            if (xMax - xMin < 2) {
+                xMin = point - 1;
+                xMax = point + 1;
+            }
+            
+            const numPoints = 200;
+            const step = (xMax - xMin) / numPoints;
+            
+            const functionData = [];
+            const leftApproach = [];
+            const rightApproach = [];
+            
+            // Generate function data
+            for (let i = 0; i <= numPoints; i++) {
+                const x = xMin + i * step;
+                const y = evaluateFunction(fn, x);
+                
+                if (y !== undefined && !isNaN(y) && Math.abs(y) < 1e8) {
+                    functionData.push({ x: x, y: y });
+                }
+            }
+            
+            // Generate approach data
+            const approachSteps = [0.1, 0.05, 0.02, 0.01, 0.005, 0.002, 0.001];
+            
+            for (const stepSize of approachSteps) {
+                const leftX = point - stepSize;
+                const rightX = point + stepSize;
+                
+                const leftY = evaluateFunction(fn, leftX);
+                const rightY = evaluateFunction(fn, rightX);
+                
+                if (leftY !== undefined && Math.abs(leftY) < 1e8) {
+                    leftApproach.push({ x: leftX, y: leftY });
+                }
+                if (rightY !== undefined && Math.abs(rightY) < 1e8) {
+                    rightApproach.push({ x: rightX, y: rightY });
+                }
+            }
+            
+            return { 
+                functionData, 
+                leftApproach, 
+                rightApproach,
+                xMin,
+                xMax
+            };
+        }
+
+        // Update graph with data
+        function updateGraph(fn, point, limitResult) {
+            // Check if limit exists
+            if (!limitResult.exists || limitResult.value === undefined) {
+                // Hide graph, show message
+                document.getElementById('no-graph-message').style.display = 'block';
+                document.getElementById('graph-container-wrapper').style.display = 'none';
+                document.getElementById('graph-legend').style.display = 'none';
+                document.getElementById('limit-point-details').style.display = 'none';
+                return;
+            }
+            
+            // Show graph elements, hide message
+            document.getElementById('no-graph-message').style.display = 'none';
+            document.getElementById('graph-container-wrapper').style.display = 'block';
+            document.getElementById('graph-legend').style.display = 'flex';
+            document.getElementById('limit-point-details').style.display = 'block';
+            
+            const { functionData, leftApproach, rightApproach, xMin, xMax } = generateGraphData(fn, point);
+            
+            // Update chart data
+            functionChart.data.datasets[0].data = functionData;
+            functionChart.data.datasets[1].data = [];
+            functionChart.data.datasets[2].data = leftApproach;
+            functionChart.data.datasets[3].data = rightApproach;
+            
+            // Add limit point if it exists
+            if (limitResult.exists && limitResult.value !== undefined && 
+                limitResult.value !== Infinity && limitResult.value !== -Infinity) {
+                functionChart.data.datasets[1].data = [{ x: point, y: limitResult.value }];
+            }
+            
+            // Update scales
+            functionChart.options.scales.x.min = xMin;
+            functionChart.options.scales.x.max = xMax;
+            
+            // Auto-scale y-axis based on data
+            const allY = functionData.map(p => p.y).filter(y => !isNaN(y) && Math.abs(y) < 1e8);
+            if (allY.length > 0) {
+                const yMin = Math.min(...allY);
+                const yMax = Math.max(...allY);
+                const padding = Math.max(Math.abs(yMax - yMin) * 0.1, 0.1);
+                
+                functionChart.options.scales.y.min = yMin - padding;
+                functionChart.options.scales.y.max = yMax + padding;
+            }
+            
+            functionChart.update();
+            
+            // Update limit details
+            let detailText = '';
+            if (limitResult.exists) {
+                if (limitResult.value === Infinity) {
+                    detailText = `As x approaches ${point}, f(x) increases without bound (approaches +∞)`;
+                } else if (limitResult.value === -Infinity) {
+                    detailText = `As x approaches ${point}, f(x) decreases without bound (approaches -∞)`;
+                } else {
+                    detailText = `As x approaches ${point}, f(x) approaches ${limitResult.value.toFixed(4)}`;
+                }
+            } else {
+                detailText = `The limit does not exist at x = ${point}. ${limitResult.message}`;
+            }
+            
+            document.getElementById('limit-detail-text').textContent = detailText;
+        }
+
+        // Generate step-by-step solution
+        function generateSolutionSteps(fn, point, limitResult) {
+            let steps = '';
+            
+            steps += `Function: f(x) = ${fn}\n`;
+            steps += `Calculating: lim(x → ${point}) f(x)\n\n`;
+            
+            if (limitResult.exists) {
+                if (limitResult.value === Infinity) {
+                    steps += `Step 1: Evaluate function values approaching ${point} from both sides\n`;
+                    steps += `Step 2: Observe that f(x) increases without bound\n`;
+                    steps += `Step 3: The function has a vertical asymptote at x = ${point}\n`;
+                    steps += `Conclusion: lim(x → ${point}) ${fn} = ∞\n`;
+                } else if (limitResult.value === -Infinity) {
+                    steps += `Step 1: Evaluate function values approaching ${point} from both sides\n`;
+                    steps += `Step 2: Observe that f(x) decreases without bound\n`;
+                    steps += `Step 3: The function has a vertical asymptote at x = ${point}\n`;
+                    steps += `Conclusion: lim(x → ${point}) ${fn} = -∞\n`;
+                } else {
+                    steps += `Step 1: Evaluate f(${point}) = ${evaluateFunction(fn, point)}\n`;
+                    steps += `Step 2: Check values approaching from left: f(${point}-ε)\n`;
+                    steps += `Step 3: Check values approaching from right: f(${point}+ε)\n`;
+                    steps += `Step 4: Both sides approach ${limitResult.value.toFixed(6)}\n`;
+                    steps += `Conclusion: lim(x → ${point}) ${fn} = ${limitResult.value.toFixed(6)}\n`;
+                }
+            } else {
+                steps += `Step 1: Evaluate function behavior near x = ${point}\n`;
+                steps += `Step 2: Check left-hand limit: lim(x→${point}⁻) f(x)\n`;
+                steps += `Step 3: Check right-hand limit: lim(x→${point}⁺) f(x)\n`;
+                steps += `Step 4: The left and right limits do not match\n`;
+                steps += `Conclusion: The limit does not exist at x = ${point}\n`;
+            }
+            
+            return steps;
+        }
+
+        // Format limit value for display
+        function formatLimit(limitResult) {
+            if (!limitResult.exists) return 'Undefined';
+            if (limitResult.value === Infinity) return '∞';
+            if (limitResult.value === -Infinity) return '-∞';
+            if (Math.abs(limitResult.value) < 1e-10) return '0';
+            return limitResult.value.toFixed(6);
+        }
+
+        // Main calculation function
+        async function calculateLimitAndGraph() {
+            const functionInput = document.getElementById('function-input').value.trim();
+            const pointStr = document.getElementById('limit-point').value.trim();
+            
+            if (!functionInput) {
+                showError('Please enter a function');
+                return;
+            }
+            
+            if (!pointStr) {
+                showError('Please enter a limit point');
+                return;
+            }
+            
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('result-content').style.display = 'none';
+            hideMessages();
+            
+            // Parse point
+            const point = parseLimitPoint(pointStr);
+            
+            // Update display
+            document.getElementById('display-function').textContent = `f(x) = ${functionInput}`;
+            document.getElementById('display-point').textContent = `x → ${point}`;
+            
+            // Calculate and update graph
+            setTimeout(() => {
+                try {
+                    const limitResult = calculateLimitAtPoint(functionInput, point);
+                    
+                    // Update results display
+                    const formattedLimit = formatLimit(limitResult);
+                    document.getElementById('final-result').textContent = `lim = ${formattedLimit}`;
+                    document.getElementById('limit-result').textContent = formattedLimit;
+                    document.getElementById('limit-type').textContent = limitResult.exists ? 'Defined' : 'Undefined';
+                    
+                    // Update solution steps
+                    const steps = generateSolutionSteps(functionInput, point, limitResult);
+                    document.getElementById('solution-steps').textContent = steps;
+                    
+                    // Update graph (will handle undefined limits)
+                    updateGraph(functionInput, point, limitResult);
+                    
+                    // Show results
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('result-content').style.display = 'block';
+                    
+                    showSuccess('Limit calculated successfully!');
+                    
+                } catch (error) {
+                    document.getElementById('loading').style.display = 'none';
+                    showError(`Error calculating limit: ${error.message}`);
+                }
+            }, 500);
+        }
+
+        // Show error message
+        function showError(message) {
+            const errorDiv = document.getElementById('error-message');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+
+        // Show success message
+        function showSuccess(message) {
+            const successDiv = document.getElementById('success-message');
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // Hide all messages
+        function hideMessages() {
+            document.getElementById('error-message').style.display = 'none';
+            document.getElementById('success-message').style.display = 'none';
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize chart
+            initializeChart();
+            
+            // Calculate button click
+            document.getElementById('calculate-btn').addEventListener('click', calculateLimitAndGraph);
+            
+            // Preset buttons - REMOVE abs(x)/x button
+            document.querySelectorAll('.preset-btn').forEach(btn => {
+                // Remove the abs(x)/x button from preset buttons
+                if (btn.getAttribute('data-fn') === 'abs(x)/x') {
+                    btn.style.display = 'none';
+                }
+                
+                btn.addEventListener('click', function() {
+                    const fn = this.getAttribute('data-fn');
+                    const point = this.getAttribute('data-point');
+                    
+                    document.getElementById('function-input').value = fn;
+                    document.getElementById('limit-point').value = point;
+                    
+                    calculateLimitAndGraph();
+                });
+            });
+            
+            // Example cards
+            document.querySelectorAll('.example-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    const fn = this.getAttribute('data-fn');
+                    const point = this.getAttribute('data-point');
+                    
+                    document.getElementById('function-input').value = fn;
+                    document.getElementById('limit-point').value = point;
+                    
+                    calculateLimitAndGraph();
+                });
+            });
+            
+            // Zoom controls
+            document.getElementById('zoom-in').addEventListener('click', function() {
+                if (functionChart.data.datasets[0].data.length === 0) return;
+                
+                const xScale = functionChart.options.scales.x;
+                const range = xScale.max - xScale.min;
+                xScale.min += range * 0.1;
+                xScale.max -= range * 0.1;
+                
+                const yScale = functionChart.options.scales.y;
+                const yRange = yScale.max - yScale.min;
+                yScale.min += yRange * 0.1;
+                yScale.max -= yRange * 0.1;
+                
+                functionChart.update();
+            });
+            
+            document.getElementById('zoom-out').addEventListener('click', function() {
+                if (functionChart.data.datasets[0].data.length === 0) return;
+                
+                const xScale = functionChart.options.scales.x;
+                const range = xScale.max - xScale.min;
+                xScale.min -= range * 0.1;
+                xScale.max += range * 0.1;
+                
+                const yScale = functionChart.options.scales.y;
+                const yRange = yScale.max - yScale.min;
+                yScale.min -= yRange * 0.1;
+                yScale.max += yRange * 0.1;
+                
+                functionChart.update();
+            });
+            
+            document.getElementById('reset-zoom').addEventListener('click', function() {
+                calculateLimitAndGraph();
+            });
+            
+            // Enter key support
+            document.getElementById('function-input').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    calculateLimitAndGraph();
+                }
+            });
+            
+            document.getElementById('limit-point').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    calculateLimitAndGraph();
+                }
+            });
+            
+            // Calculate initial example
+            setTimeout(() => {
+                calculateLimitAndGraph();
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
 
