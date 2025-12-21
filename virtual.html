@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Limit Solver - Mathematical Visualization Tool</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Limit Calculator with Graph</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.9.1/lib/browser/math.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -12,600 +13,791 @@
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-
+        
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
         }
-
-        .poster-container {
-            width: 1200px;
-            height: 1600px;
-            background: white;
-            border-radius: 30px;
-            overflow: hidden;
-            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.4);
-            position: relative;
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
         }
-
-        .poster-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 60px 50px 40px;
+        
+        header {
             text-align: center;
-            position: relative;
-            overflow: hidden;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
         }
-
-        .header-background {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            opacity: 0.1;
-            background-image: 
-                radial-gradient(circle at 20% 30%, rgba(255,255,255,0.3) 2px, transparent 2px),
-                radial-gradient(circle at 80% 70%, rgba(255,255,255,0.3) 2px, transparent 2px);
-            background-size: 50px 50px;
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00dbde, #fc00ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
-
-        .main-title {
-            font-size: 5.5rem;
-            font-weight: 800;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
-            text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            position: relative;
-            z-index: 2;
-        }
-
+        
         .subtitle {
-            font-size: 2.2rem;
-            font-weight: 300;
-            opacity: 0.9;
-            max-width: 800px;
-            margin: 0 auto 30px;
-            line-height: 1.4;
-            position: relative;
-            z-index: 2;
+            font-size: 1.1rem;
+            opacity: 0.8;
         }
-
-        .title-icon {
-            font-size: 4rem;
-            margin-right: 25px;
-            vertical-align: middle;
-            color: #ffd700;
-            filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.3));
-        }
-
-        .tagline {
-            font-size: 1.8rem;
-            font-weight: 600;
-            background: rgba(255, 255, 255, 0.2);
-            padding: 15px 40px;
-            border-radius: 50px;
-            display: inline-block;
-            backdrop-filter: blur(10px);
-            position: relative;
-            z-index: 2;
-            margin-top: 20px;
-        }
-
-        .poster-content {
-            padding: 50px;
+        
+        .calculator {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 50px;
-            height: calc(100% - 300px);
-        }
-
-        .feature-section {
-            padding: 20px 0;
-        }
-
-        .section-title {
-            font-size: 2.8rem;
-            color: #2c3e50;
+            gap: 30px;
             margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 4px solid #667eea;
-            display: flex;
-            align-items: center;
-            gap: 15px;
         }
-
-        .section-icon {
-            color: #667eea;
-            font-size: 2.5rem;
+        
+        @media (max-width: 900px) {
+            .calculator {
+                grid-template-columns: 1fr;
+            }
         }
-
-        .feature-list {
-            list-style: none;
+        
+        .input-section, .result-section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
         }
-
-        .feature-item {
-            font-size: 1.8rem;
-            margin-bottom: 25px;
-            padding-left: 40px;
-            position: relative;
-            line-height: 1.4;
-            color: #34495e;
+        
+        h2 {
+            margin-bottom: 20px;
+            color: #4cc9f0;
+            font-size: 1.5rem;
+            border-bottom: 2px solid #4361ee;
+            padding-bottom: 10px;
         }
-
-        .feature-item:before {
-            content: "✓";
-            position: absolute;
-            left: 0;
-            top: 0;
-            color: #2ecc71;
-            font-size: 2.2rem;
-            font-weight: bold;
+        
+        .input-group {
+            margin-bottom: 20px;
         }
-
-        .feature-highlight {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 30px;
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
             font-weight: 600;
-            display: inline-block;
-            margin-top: 10px;
+            color: #b8c1ec;
         }
-
-        .demo-section {
-            background: #f8f9fa;
-            border-radius: 25px;
-            padding: 35px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            border: 3px solid #e9ecef;
+        
+        input, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s;
         }
-
-        .demo-title {
-            font-size: 2.2rem;
-            color: #2c3e50;
-            margin-bottom: 25px;
-            text-align: center;
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #4361ee;
+            box-shadow: 0 0 0 2px rgba(67, 97, 238, 0.3);
         }
-
-        .demo-example {
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-            border-left: 6px solid #667eea;
+        
+        .function-examples {
+            background: rgba(67, 97, 238, 0.1);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            font-size: 0.9rem;
         }
-
-        .example-function {
-            font-size: 2rem;
-            font-family: 'Courier New', monospace;
-            color: #2c3e50;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .example-result {
-            font-size: 2.5rem;
-            font-weight: bold;
-            color: #667eea;
-            text-align: center;
+        
+        .function-examples h3 {
+            color: #4cc9f0;
             margin-bottom: 10px;
         }
-
-        .example-desc {
-            font-size: 1.6rem;
-            color: #7f8c8d;
-            text-align: center;
+        
+        .example {
+            margin-bottom: 5px;
+            padding: 5px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 5px;
         }
-
-        .graph-container {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            margin-top: 20px;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-            border: 3px solid #e9ecef;
-        }
-
-        .graph-placeholder {
-            height: 250px;
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-radius: 15px;
+        
+        .btn-container {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            position: relative;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .calculate-btn {
+            background: linear-gradient(90deg, #4361ee, #3a0ca3);
+            color: white;
+        }
+        
+        .calculate-btn:hover {
+            background: linear-gradient(90deg, #3a0ca3, #4361ee);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(67, 97, 238, 0.4);
+        }
+        
+        .reset-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .reset-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .limit-result {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            border-left: 5px solid #4361ee;
+        }
+        
+        .limit-expression {
+            font-size: 1.3rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #f72585;
+            font-weight: bold;
+        }
+        
+        .limit-value {
+            font-size: 2rem;
+            text-align: center;
+            margin: 15px 0;
+            color: #4cc9f0;
+        }
+        
+        .limit-status {
+            text-align: center;
+            padding: 8px;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-weight: 600;
+        }
+        
+        .defined {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+        }
+        
+        .undefined {
+            background: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+        }
+        
+        .graph-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+            margin-top: 30px;
+        }
+        
+        #graph {
+            width: 100%;
+            height: 500px;
+            border-radius: 10px;
             overflow: hidden;
         }
-
-        .graph-line {
-            position: absolute;
-            width: 100%;
-            height: 4px;
-            background: #667eea;
-            top: 50%;
-            left: 0;
-            transform: translateY(-50%);
-        }
-
-        .graph-point {
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            background: #f5576c;
-            border-radius: 50%;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            box-shadow: 0 0 0 8px rgba(245, 87, 108, 0.3);
-        }
-
-        .graph-label {
-            position: absolute;
-            font-size: 1.4rem;
-            font-weight: bold;
-            color: #2c3e50;
-        }
-
-        .graph-label.x {
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-        }
-
-        .graph-label.y {
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%) rotate(-90deg);
-        }
-
-        .poster-footer {
-            background: #2c3e50;
-            color: white;
-            padding: 40px 50px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-        }
-
-        .footer-title {
-            font-size: 2.2rem;
-            font-weight: 600;
-        }
-
-        .footer-subtitle {
-            font-size: 1.6rem;
-            opacity: 0.8;
-            margin-top: 10px;
-        }
-
-        .qr-code {
-            width: 150px;
-            height: 150px;
-            background: white;
-            border-radius: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .qr-label {
-            font-size: 1.2rem;
-            color: #2c3e50;
-            text-align: center;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-
-        .qr-pattern {
-            width: 100%;
-            height: 100%;
-            background-image: 
-                linear-gradient(45deg, #667eea 25%, transparent 25%),
-                linear-gradient(-45deg, #667eea 25%, transparent 25%),
-                linear-gradient(45deg, transparent 75%, #667eea 75%),
-                linear-gradient(-45deg, transparent 75%, #667eea 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-        }
-
-        .math-symbols {
-            position: absolute;
-            font-size: 4rem;
-            color: rgba(102, 126, 234, 0.15);
-            font-weight: bold;
-        }
-
-        .symbol-1 { top: 15%; left: 10%; }
-        .symbol-2 { top: 25%; right: 15%; }
-        .symbol-3 { bottom: 25%; left: 12%; }
-        .symbol-4 { bottom: 35%; right: 10%; }
-
-        .tech-stack {
-            display: flex;
-            gap: 20px;
+        
+        .info-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
             margin-top: 30px;
-            flex-wrap: wrap;
+            border-left: 5px solid #f72585;
         }
-
-        .tech-item {
-            background: #f1f3f4;
-            padding: 12px 25px;
-            border-radius: 50px;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #2c3e50;
-            display: flex;
-            align-items: center;
-            gap: 10px;
+        
+        .info-box h3 {
+            color: #f72585;
+            margin-bottom: 10px;
         }
-
-        .tech-icon {
-            color: #667eea;
-            font-size: 1.8rem;
+        
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            opacity: 0.7;
+            font-size: 0.9rem;
         }
-
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-            
-            .poster-container {
-                box-shadow: none;
-                border-radius: 0;
-                width: 100%;
-                height: auto;
-            }
+        
+        .error-message {
+            color: #f44336;
+            background: rgba(244, 67, 54, 0.1);
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="poster-container">
-        <!-- Mathematical symbols in background -->
-        <div class="math-symbols symbol-1">lim</div>
-        <div class="math-symbols symbol-2">∫</div>
-        <div class="math-symbols symbol-3">∑</div>
-        <div class="math-symbols symbol-4">∞</div>
-
-        <!-- Header Section -->
-        <div class="poster-header">
-            <div class="header-background"></div>
-            <h1 class="main-title">
-                <i class="fas fa-infinity title-icon"></i>
-                Limit Solver
-            </h1>
-            <p class="subtitle">Interactive Mathematical Visualization Tool</p>
-            <div class="tagline">
-                Visualize Limits • Calculate Precisely • Learn Intuitively
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="poster-content">
-            <!-- Left Column: Features -->
-            <div class="feature-section">
-                <h2 class="section-title">
-                    <i class="fas fa-star section-icon"></i>
-                    Key Features
-                </h2>
+    <div class="container">
+        <header>
+            <h1>Limit Calculator with Graph</h1>
+            <p class="subtitle">Calculate limits of functions and visualize them graphically</p>
+        </header>
+        
+        <div class="calculator">
+            <div class="input-section">
+                <h2>Function Input</h2>
                 
-                <ul class="feature-list">
-                    <li class="feature-item">
-                        <strong>Interactive Limit Calculation</strong>
-                        <br>
-                        <span class="feature-highlight">Real-time computation at any point</span>
-                    </li>
-                    
-                    <li class="feature-item">
-                        <strong>Visual Graph Representation</strong>
-                        <br>
-                        <span class="feature-highlight">See functions and limit approaches</span>
-                    </li>
-                    
-                    <li class="feature-item">
-                        <strong>Step-by-Step Solutions</strong>
-                        <br>
-                        <span class="feature-highlight">Understand the calculation process</span>
-                    </li>
-                    
-                    <li class="feature-item">
-                        <strong>Multiple Function Support</strong>
-                        <br>
-                        <span class="feature-highlight">Trigonometric, polynomial, exponential, logarithmic</span>
-                    </li>
-                    
-                    <li class="feature-item">
-                        <strong>Zoom & Navigation Controls</strong>
-                        <br>
-                        <span class="feature-highlight">Explore graphs in detail</span>
-                    </li>
-                    
-                    <li class="feature-item">
-                        <strong>Educational Examples</strong>
-                        <br>
-                        <span class="feature-highlight">Learn with pre-built examples</span>
-                    </li>
-                </ul>
-
-                <!-- Technology Stack -->
-                <h2 class="section-title" style="margin-top: 50px;">
-                    <i class="fas fa-code section-icon"></i>
-                    Built With
-                </h2>
-                
-                <div class="tech-stack">
-                    <div class="tech-item">
-                        <i class="fab fa-html5 tech-icon"></i> HTML5
-                    </div>
-                    <div class="tech-item">
-                        <i class="fab fa-css3-alt tech-icon"></i> CSS3
-                    </div>
-                    <div class="tech-item">
-                        <i class="fab fa-js tech-icon"></i> JavaScript
-                    </div>
-                    <div class="tech-item">
-                        <i class="fas fa-chart-line tech-icon"></i> Chart.js
-                    </div>
-                    <div class="tech-item">
-                        <i class="fas fa-calculator tech-icon"></i> Math.js
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right Column: Demos -->
-            <div class="demo-section">
-                <h2 class="demo-title">
-                    <i class="fas fa-lightbulb"></i> Example Limits
-                </h2>
-                
-                <div class="demo-example">
-                    <div class="example-function">
-                        lim(x→0) sin(x)/x
-                    </div>
-                    <div class="example-result">
-                        = 1
-                    </div>
-                    <div class="example-desc">
-                        Standard trigonometric limit
-                    </div>
+                <div class="input-group">
+                    <label for="function">Function f(x):</label>
+                    <input type="text" id="function" placeholder="Enter function (e.g., sin(x)/x, x^2-4)/(x-2))" value="sin(x)/x">
+                    <div class="error-message" id="function-error">Please enter a valid function</div>
                 </div>
                 
-                <div class="demo-example">
-                    <div class="example-function">
-                        lim(x→1) (x²-1)/(x-1)
-                    </div>
-                    <div class="example-result">
-                        = 2
-                    </div>
-                    <div class="example-desc">
-                        Removable discontinuity
-                    </div>
+                <div class="input-group">
+                    <label for="limit-point">Limit Point (a):</label>
+                    <input type="text" id="limit-point" placeholder="Enter the point to approach" value="0">
+                    <div class="error-message" id="point-error">Please enter a valid number</div>
                 </div>
                 
-                <div class="demo-example">
-                    <div class="example-function">
-                        lim(x→2) x²
-                    </div>
-                    <div class="example-result">
-                        = 4
-                    </div>
-                    <div class="example-desc">
-                        Continuous function
-                    </div>
+                <div class="input-group">
+                    <label for="direction">Direction:</label>
+                    <select id="direction">
+                        <option value="both">Two-sided limit</option>
+                        <option value="left">Left limit (x → a⁻)</option>
+                        <option value="right">Right limit (x → a⁺)</option>
+                    </select>
                 </div>
-
-                <!-- Graph Visualization -->
-                <div class="graph-container">
-                    <h2 class="demo-title">
-                        <i class="fas fa-chart-line"></i> Visual Representation
-                    </h2>
-                    
-                    <div class="graph-placeholder">
-                        <div class="graph-line"></div>
-                        <div class="graph-point"></div>
-                        <div class="graph-label x">x → 0</div>
-                        <div class="graph-label y">f(x)</div>
-                        
-                        <!-- Animated approaching points -->
-                        <div style="position: absolute; width: 15px; height: 15px; background: #4facfe; border-radius: 50%; top: 50%; left: 30%; transform: translate(-50%, -50%); box-shadow: 0 0 0 5px rgba(79, 172, 254, 0.3);"></div>
-                        <div style="position: absolute; width: 15px; height: 15px; background: #4facfe; border-radius: 50%; top: 50%; left: 40%; transform: translate(-50%, -50%); box-shadow: 0 0 0 5px rgba(79, 172, 254, 0.3);"></div>
-                        <div style="position: absolute; width: 15px; height: 15px; background: #00f2fe; border-radius: 50%; top: 50%; left: 60%; transform: translate(-50%, -50%); box-shadow: 0 0 0 5px rgba(0, 242, 254, 0.3);"></div>
-                        <div style="position: absolute; width: 15px; height: 15px; background: #00f2fe; border-radius: 50%; top: 50%; left: 70%; transform: translate(-50%, -50%); box-shadow: 0 0 0 5px rgba(0, 242, 254, 0.3);"></div>
-                        
-                        <!-- Function curve -->
-                        <div style="position: absolute; width: 80%; height: 3px; background: #667eea; border-radius: 2px; top: 50%; left: 10%; transform: translateY(-50%); opacity: 0.8;"></div>
-                        <div style="position: absolute; width: 3px; height: 80%; background: #667eea; border-radius: 2px; top: 10%; left: 50%; transform: translateX(-50%); opacity: 0.8;"></div>
-                    </div>
-                    
-                    <div style="display: flex; justify-content: center; gap: 30px; margin-top: 25px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="width: 15px; height: 15px; background: #667eea; border-radius: 3px;"></div>
-                            <span style="font-size: 1.4rem;">Function f(x)</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="width: 15px; height: 15px; background: #f5576c; border-radius: 50%;"></div>
-                            <span style="font-size: 1.4rem;">Limit Point</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <div style="width: 15px; height: 15px; background: #4facfe; border-radius: 50%;"></div>
-                            <span style="font-size: 1.4rem;">Left Approach</span>
-                        </div>
-                    </div>
+                
+                <div class="function-examples">
+                    <h3>Function Examples:</h3>
+                    <div class="example">sin(x)/x (at x=0)</div>
+                    <div class="example">(x^2-4)/(x-2) (at x=2)</div>
+                    <div class="example">1/x (at x=0 for left/right limits)</div>
+                    <div class="example">(x^3-8)/(x-2) (at x=2)</div>
+                    <div class="example">log(x+1)/x (at x=0)</div>
+                    <div class="example">(1-cos(x))/x^2 (at x=0)</div>
                 </div>
-            </div>
-        </div>
-
-        <!-- Footer -->
-        <div class="poster-footer">
-            <div>
-                <div class="footer-title">Limit Solver with Graph</div>
-                <div class="footer-subtitle">Interactive mathematical visualization tool for students and educators</div>
-                <div class="footer-subtitle" style="margin-top: 20px;">
-                    <i class="fas fa-globe"></i> Available online • <i class="fas fa-graduation-cap"></i> Educational tool
+                
+                <div class="btn-container">
+                    <button class="calculate-btn" onclick="calculateLimit()">Calculate Limit</button>
+                    <button class="reset-btn" onclick="resetCalculator()">Reset</button>
                 </div>
             </div>
             
-            <div class="qr-code">
-                <div class="qr-pattern"></div>
-                <div class="qr-label">Scan to Explore</div>
+            <div class="result-section">
+                <h2>Limit Result</h2>
+                <div class="limit-result">
+                    <div id="limit-expression" class="limit-expression">lim<sub>x→a</sub> f(x)</div>
+                    <div id="limit-value" class="limit-value">-</div>
+                    <div id="limit-status" class="limit-status defined">Enter a function and click Calculate</div>
+                </div>
+                
+                <div class="info-box">
+                    <h3>How it works:</h3>
+                    <p>This calculator numerically approximates the limit by evaluating the function at points approaching the limit point from both sides (or the specified direction).</p>
+                    <p>It checks for continuity and convergence to determine if the limit exists.</p>
+                </div>
             </div>
         </div>
+        
+        <div class="graph-container">
+            <h2>Graphical Representation</h2>
+            <div id="graph"></div>
+        </div>
+        
+        <div class="info-box">
+            <h3>Note:</h3>
+            <p>This calculator avoids undefined limits by checking for function continuity and convergence. If a function approaches infinity or doesn't converge, it will be marked as "undefined".</p>
+            <p>For best results, use functions that are defined around the limit point.</p>
+        </div>
+        
+        <footer>
+            <p>Limit Calculator with Graphical Visualization | Uses Math.js for calculations and Plotly for graphing</p>
+        </footer>
     </div>
 
     <script>
-        // Add some interactive effects for the poster
-        document.addEventListener('DOMContentLoaded', function() {
-            // Animate feature items on hover
-            const featureItems = document.querySelectorAll('.feature-item');
-            featureItems.forEach(item => {
-                item.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateX(10px)';
-                    this.style.transition = 'transform 0.3s ease';
-                });
+        // Initialize Math.js parser
+        const parser = math.parser();
+        
+        // Store previous calculation data
+        let currentFunction = '';
+        let currentLimitPoint = 0;
+        let currentLimitValue = null;
+        let currentDirection = 'both';
+        
+        // Function to validate and parse the function
+        function parseFunction(funcStr) {
+            try {
+                // Clean up the function string
+                funcStr = funcStr.replace(/\^/g, '**');
+                funcStr = funcStr.replace(/sin\(/g, 'sin(');
+                funcStr = funcStr.replace(/cos\(/g, 'cos(');
+                funcStr = funcStr.replace(/tan\(/g, 'tan(');
+                funcStr = funcStr.replace(/log\(/g, 'log(');
+                funcStr = funcStr.replace(/ln\(/g, 'log(');
+                funcStr = funcStr.replace(/exp\(/g, 'exp(');
+                funcStr = funcStr.replace(/sqrt\(/g, 'sqrt(');
                 
-                item.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateX(0)';
-                });
+                // Test if the function can be parsed
+                const testExpr = math.compile(funcStr);
+                const testResult = testExpr.evaluate({x: 1});
+                
+                return {success: true, func: funcStr, compiled: testExpr};
+            } catch (error) {
+                return {success: false, error: error.message};
+            }
+        }
+        
+        // Function to validate the limit point
+        function parseLimitPoint(pointStr) {
+            if (pointStr.trim() === '') {
+                return {success: false, error: 'Limit point cannot be empty'};
+            }
+            
+            // Check for infinity
+            if (pointStr.toLowerCase() === 'inf' || pointStr.toLowerCase() === 'infinity' || pointStr === '∞') {
+                return {success: true, value: Infinity, isInfinity: true};
+            }
+            
+            // Check for negative infinity
+            if (pointStr.toLowerCase() === '-inf' || pointStr.toLowerCase() === '-infinity' || pointStr === '-∞') {
+                return {success: true, value: -Infinity, isInfinity: true};
+            }
+            
+            // Parse as a number
+            const num = parseFloat(pointStr);
+            if (isNaN(num)) {
+                return {success: false, error: 'Please enter a valid number'};
+            }
+            
+            return {success: true, value: num, isInfinity: false};
+        }
+        
+        // Function to calculate the limit numerically
+        function calculateLimit() {
+            // Get input values
+            const funcStr = document.getElementById('function').value.trim();
+            const pointStr = document.getElementById('limit-point').value.trim();
+            const direction = document.getElementById('direction').value;
+            
+            // Hide previous errors
+            document.getElementById('function-error').style.display = 'none';
+            document.getElementById('point-error').style.display = 'none';
+            
+            // Parse the function
+            const funcResult = parseFunction(funcStr);
+            if (!funcResult.success) {
+                document.getElementById('function-error').textContent = `Function error: ${funcResult.error}`;
+                document.getElementById('function-error').style.display = 'block';
+                return;
+            }
+            
+            // Parse the limit point
+            const pointResult = parseLimitPoint(pointStr);
+            if (!pointResult.success) {
+                document.getElementById('point-error').textContent = pointResult.error;
+                document.getElementById('point-error').style.display = 'block';
+                return;
+            }
+            
+            // Store current values for graphing
+            currentFunction = funcStr;
+            currentLimitPoint = pointResult.value;
+            currentDirection = direction;
+            
+            // Calculate the limit
+            let limitResult;
+            let isDefined = true;
+            let message = '';
+            
+            if (pointResult.isInfinity) {
+                limitResult = calculateLimitAtInfinity(funcResult.compiled, pointResult.value, direction);
+            } else {
+                limitResult = calculateLimitAtPoint(funcResult.compiled, pointResult.value, direction);
+            }
+            
+            // Update the display
+            updateResultDisplay(funcStr, pointStr, direction, limitResult);
+            
+            // Generate the graph
+            generateGraph(funcResult.compiled, pointResult.value, direction, limitResult);
+        }
+        
+        // Calculate limit at a finite point
+        function calculateLimitAtPoint(compiledFunc, point, direction) {
+            // Check if the function is defined at the point
+            let funcValueAtPoint;
+            try {
+                funcValueAtPoint = compiledFunc.evaluate({x: point});
+            } catch (e) {
+                funcValueAtPoint = undefined;
+            }
+            
+            // Define sequences approaching the point
+            let sequences = [];
+            
+            if (direction === 'both' || direction === 'right') {
+                // From the right: point + epsilon
+                sequences.push(generateSequence(point, 0.01, 10, 'right'));
+            }
+            
+            if (direction === 'both' || direction === 'left') {
+                // From the left: point - epsilon
+                sequences.push(generateSequence(point, 0.01, 10, 'left'));
+            }
+            
+            // Evaluate function at sequence points
+            let limitValues = [];
+            let allSequences = [];
+            
+            for (let seq of sequences) {
+                let seqValues = [];
+                for (let x of seq) {
+                    try {
+                        const y = compiledFunc.evaluate({x: x});
+                        seqValues.push(y);
+                    } catch (e) {
+                        seqValues.push(undefined);
+                    }
+                }
+                limitValues.push(seqValues);
+                allSequences.push(seq);
+            }
+            
+            // Check for convergence
+            let limitEstimate = null;
+            let isConvergent = true;
+            
+            // Check if sequences converge to the same value
+            if (limitValues.length === 2) {
+                // Two-sided limit: check if left and right converge to same value
+                const rightAvg = average(limitValues[0].filter(v => v !== undefined && isFinite(v)));
+                const leftAvg = average(limitValues[1].filter(v => v !== undefined && isFinite(v)));
+                
+                if (Math.abs(rightAvg - leftAvg) < 0.01) {
+                    limitEstimate = (rightAvg + leftAvg) / 2;
+                } else {
+                    isConvergent = false;
+                }
+            } else {
+                // One-sided limit
+                const values = limitValues[0].filter(v => v !== undefined && isFinite(v));
+                limitEstimate = average(values);
+            }
+            
+            // Check for infinite limits
+            if (limitEstimate !== null && Math.abs(limitEstimate) > 1e10) {
+                limitEstimate = limitEstimate > 0 ? Infinity : -Infinity;
+            }
+            
+            return {
+                value: limitEstimate,
+                isDefined: isConvergent && limitEstimate !== null,
+                funcValueAtPoint: funcValueAtPoint,
+                sequences: allSequences,
+                limitValues: limitValues
+            };
+        }
+        
+        // Calculate limit at infinity
+        function calculateLimitAtInfinity(compiledFunc, infinityPoint, direction) {
+            // Generate large values approaching infinity
+            let sequence = [];
+            const isNegativeInfinity = infinityPoint === -Infinity;
+            
+            for (let i = 1; i <= 10; i++) {
+                const x = isNegativeInfinity ? -Math.pow(10, i) : Math.pow(10, i);
+                sequence.push(x);
+            }
+            
+            // Evaluate function at these points
+            let limitValues = [];
+            for (let x of sequence) {
+                try {
+                    const y = compiledFunc.evaluate({x: x});
+                    limitValues.push(y);
+                } catch (e) {
+                    limitValues.push(undefined);
+                }
+            }
+            
+            // Check for convergence
+            const validValues = limitValues.filter(v => v !== undefined && isFinite(v));
+            let limitEstimate = average(validValues);
+            
+            // Check if values are stabilizing
+            let isConvergent = true;
+            if (validValues.length >= 3) {
+                const lastThree = validValues.slice(-3);
+                const maxDiff = Math.max(...lastThree) - Math.min(...lastThree);
+                if (maxDiff > Math.abs(limitEstimate) * 0.1 && maxDiff > 0.1) {
+                    isConvergent = false;
+                }
+            }
+            
+            // Check for infinite limits
+            if (Math.abs(limitEstimate) > 1e10) {
+                limitEstimate = limitEstimate > 0 ? Infinity : -Infinity;
+            }
+            
+            return {
+                value: limitEstimate,
+                isDefined: isConvergent && limitEstimate !== null,
+                funcValueAtPoint: undefined,
+                sequences: [sequence],
+                limitValues: [limitValues]
+            };
+        }
+        
+        // Helper function to generate a sequence approaching a point
+        function generateSequence(point, step, count, direction) {
+            let sequence = [];
+            for (let i = 1; i <= count; i++) {
+                const epsilon = i * step;
+                const x = direction === 'right' ? point + epsilon : point - epsilon;
+                sequence.push(x);
+            }
+            return sequence;
+        }
+        
+        // Helper function to calculate average
+        function average(arr) {
+            if (arr.length === 0) return null;
+            const sum = arr.reduce((a, b) => a + b, 0);
+            return sum / arr.length;
+        }
+        
+        // Update the result display
+        function updateResultDisplay(funcStr, pointStr, direction, result) {
+            // Format the limit expression
+            let directionSymbol = '';
+            if (direction === 'left') directionSymbol = '⁻';
+            if (direction === 'right') directionSymbol = '⁺';
+            
+            const limitExpr = `lim<sub>x→${pointStr}${directionSymbol}</sub> ${funcStr}`;
+            document.getElementById('limit-expression').innerHTML = limitExpr;
+            
+            // Format the limit value
+            let limitValueText = '-';
+            if (result.value !== null && result.isDefined) {
+                if (result.value === Infinity) {
+                    limitValueText = '∞';
+                } else if (result.value === -Infinity) {
+                    limitValueText = '-∞';
+                } else {
+                    limitValueText = result.value.toFixed(6);
+                }
+            }
+            
+            document.getElementById('limit-value').textContent = limitValueText;
+            
+            // Update status
+            const statusElement = document.getElementById('limit-status');
+            if (result.isDefined && result.value !== null) {
+                statusElement.textContent = 'Limit exists and is defined';
+                statusElement.className = 'limit-status defined';
+            } else {
+                statusElement.textContent = 'Limit is undefined or does not exist';
+                statusElement.className = 'limit-status undefined';
+            }
+            
+            // Store the limit value for graphing
+            currentLimitValue = result.value;
+        }
+        
+        // Generate the graph
+        function generateGraph(compiledFunc, point, direction, limitResult) {
+            // Determine the x-range for the graph
+            let xMin, xMax;
+            let isInfinity = point === Infinity || point === -Infinity;
+            
+            if (isInfinity) {
+                xMin = -10;
+                xMax = 10;
+            } else {
+                const range = Math.max(5, Math.abs(point) * 0.5);
+                xMin = point - range;
+                xMax = point + range;
+            }
+            
+            // Generate x values
+            const step = (xMax - xMin) / 200;
+            let xValues = [];
+            let yValues = [];
+            let holeX = [];
+            let holeY = [];
+            
+            for (let x = xMin; x <= xMax; x += step) {
+                // Skip the exact limit point to avoid undefined values
+                if (Math.abs(x - point) < step * 0.1 && !isInfinity) continue;
+                
+                try {
+                    const y = compiledFunc.evaluate({x: x});
+                    if (isFinite(y)) {
+                        xValues.push(x);
+                        yValues.push(y);
+                    } else {
+                        // Mark as hole
+                        holeX.push(x);
+                        holeY.push(y > 0 ? 1e10 : -1e10);
+                    }
+                } catch (e) {
+                    // Skip points where function is undefined
+                }
+            }
+            
+            // Create traces for the graph
+            let traces = [];
+            
+            // Main function trace
+            traces.push({
+                x: xValues,
+                y: yValues,
+                mode: 'lines',
+                name: 'f(x)',
+                line: {color: '#4361ee', width: 3}
             });
             
-            // Animate example cards on hover
-            const examples = document.querySelectorAll('.demo-example');
-            examples.forEach(example => {
-                example.addEventListener('mouseenter', function() {
-                    this.style.transform = 'translateY(-10px)';
-                    this.style.boxShadow = '0 15px 30px rgba(0, 0, 0, 0.1)';
-                    this.style.transition = 'all 0.3s ease';
+            // Limit point trace
+            if (!isInfinity && limitResult.isDefined && limitResult.value !== null) {
+                // Add the limit value as a point
+                traces.push({
+                    x: [point],
+                    y: [limitResult.value],
+                    mode: 'markers',
+                    name: 'Limit',
+                    marker: {
+                        size: 12,
+                        color: '#f72585',
+                        symbol: 'circle-open'
+                    }
                 });
                 
-                example.addEventListener('mouseleave', function() {
-                    this.style.transform = 'translateY(0)';
-                    this.style.boxShadow = '0 5px 20px rgba(0, 0, 0, 0.05)';
-                });
-            });
+                // Add a horizontal line at the limit value if finite
+                if (isFinite(limitResult.value)) {
+                    traces.push({
+                        x: [xMin, xMax],
+                        y: [limitResult.value, limitResult.value],
+                        mode: 'lines',
+                        name: 'Limit Value',
+                        line: {
+                            color: '#f72585',
+                            width: 2,
+                            dash: 'dash'
+                        }
+                    });
+                }
+            }
             
-            // Add print button functionality (for demo purposes)
-            const poster = document.querySelector('.poster-container');
-            poster.addEventListener('click', function() {
-                this.style.transform = 'scale(0.98)';
-                setTimeout(() => {
-                    this.style.transform = 'scale(1)';
-                }, 150);
-            });
-        });
+            // Vertical line at the limit point if finite
+            if (!isInfinity) {
+                traces.push({
+                    x: [point, point],
+                    y: [Math.min(...yValues.filter(isFinite)), Math.max(...yValues.filter(isFinite))],
+                    mode: 'lines',
+                    name: 'x → a',
+                    line: {
+                        color: '#4cc9f0',
+                        width: 2,
+                        dash: 'dot'
+                    }
+                });
+            }
+            
+            // Holes/undefined points
+            if (holeX.length > 0) {
+                traces.push({
+                    x: holeX,
+                    y: holeY,
+                    mode: 'markers',
+                    name: 'Undefined',
+                    marker: {
+                        size: 8,
+                        color: '#ff6b6b',
+                        symbol: 'x'
+                    }
+                });
+            }
+            
+            // Layout configuration
+            const layout = {
+                title: {
+                    text: `Limit Visualization: f(x) = ${currentFunction}`,
+                    font: {color: '#fff', size: 18}
+                },
+                xaxis: {
+                    title: {text: 'x', font: {color: '#b8c1ec', size: 14}},
+                    gridcolor: 'rgba(255,255,255,0.1)',
+                    zerolinecolor: 'rgba(255,255,255,0.3)',
+                    color: '#b8c1ec',
+                    range: [xMin, xMax]
+                },
+                yaxis: {
+                    title: {text: 'f(x)', font: {color: '#b8c1ec', size: 14}},
+                    gridcolor: 'rgba(255,255,255,0.1)',
+                    zerolinecolor: 'rgba(255,255,255,0.3)',
+                    color: '#b8c1ec'
+                },
+                plot_bgcolor: 'rgba(0,0,0,0)',
+                paper_bgcolor: 'rgba(0,0,0,0)',
+                font: {color: '#b8c1ec'},
+                showlegend: true,
+                legend: {
+                    x: 0.02,
+                    y: 0.98,
+                    bgcolor: 'rgba(0,0,0,0.5)',
+                    font: {color: '#fff'}
+                },
+                margin: {l: 60, r: 30, t: 60, b: 50}
+            };
+            
+            // Plot the graph
+            Plotly.newPlot('graph', traces, layout);
+        }
+        
+        // Reset the calculator
+        function resetCalculator() {
+            document.getElementById('function').value = 'sin(x)/x';
+            document.getElementById('limit-point').value = '0';
+            document.getElementById('direction').value = 'both';
+            
+            document.getElementById('limit-expression').innerHTML = 'lim<sub>x→a</sub> f(x)';
+            document.getElementById('limit-value').textContent = '-';
+            document.getElementById('limit-status').textContent = 'Enter a function and click Calculate';
+            document.getElementById('limit-status').className = 'limit-status defined';
+            
+            document.getElementById('function-error').style.display = 'none';
+            document.getElementById('point-error').style.display = 'none';
+            
+            // Clear the graph
+            Plotly.purge('graph');
+            document.getElementById('graph').innerHTML = '<div style="display: flex; justify-content: center; align-items: center; height: 100%; color: #b8c1ec;">Graph will appear here after calculation</div>';
+        }
+        
+        // Initialize with an example
+        window.onload = function() {
+            // Set default values
+            resetCalculator();
+        };
     </script>
 </body>
 </html>
