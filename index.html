@@ -3,957 +3,1079 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PCCOE Virtual Labs</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <title>Limit Calculator with Graphical Representation</title>
+    <script src="https://cdn.jsdelivr.net/npm/mathjs@11.9.0/lib/browser/math.js"></script>
+    <script src="https://cdn.plot.ly/plotly-2.24.1.min.js"></script>
     <style>
-        /* ===== BASE STYLES ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
         body {
-            background-color: #f5f7fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: #333;
-            line-height: 1.6;
             min-height: 100vh;
+            padding: 20px;
         }
         
-        /* ===== HEADER STYLES ===== */
-        .header {
-            background-color: #2b3ea0;
-            color: white;
-            padding: 20px 0;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-        
-        .header-container {
+        .container {
             max-width: 1200px;
             margin: 0 auto;
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
         
-        .logo-container {
-            display: flex;
-            align-items: center;
-            flex: 1;
-        }
-        
-        .logo-placeholder {
-            width: 80px;
-            height: 80px;
-            background-color: white;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-right: 20px;
-            border: 2px solid #fff;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-        
-        .logo-placeholder i {
-            font-size: 36px;
-            color: #3e8adb;
-        }
-        
-        .institution-info {
-            flex: 2;
-        }
-        
-        .applied-sciences {
-            font-size: 1.8rem;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-        }
-        
-        .college-name {
-            font-size: 1.2rem;
-            font-weight: 500;
-            margin-bottom: 5px;
-        }
-        
-        .virtual-labs {
-            font-size: 2.2rem;
-            font-weight: 800;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        
-        .welcome-section {
-            text-align: right;
-            flex: 1;
-        }
-        
-        .welcome-text {
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 5px;
-        }
-        
-        .welcome-subtext {
-            font-size: 1rem;
-            font-weight: 400;
-        }
-        
-        /* ===== MAIN CONTENT STYLES ===== */
-        .main-container {
-            max-width: 1200px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-        
-        .page-title {
+        header {
             text-align: center;
             margin-bottom: 30px;
-            color: #333;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #667eea;
         }
         
-        .page-title h1 {
-            font-size: 2.5rem;
-            color: #FF8C00;
+        h1 {
+            color: #2d3748;
+            margin-bottom: 10px;
+            font-size: 2.5em;
+        }
+        
+        .subtitle {
+            color: #4a5568;
+            font-size: 1.2em;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+        
+        @media (max-width: 900px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .input-section {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .graph-section {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        h2 {
+            color: #2d3748;
+            margin-bottom: 20px;
+            font-size: 1.8em;
+        }
+        
+        .function-selector {
+            margin-bottom: 25px;
+        }
+        
+        .function-buttons {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .func-btn {
+            padding: 12px;
+            background: #edf2f7;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .func-btn:hover {
+            background: #e2e8f0;
+        }
+        
+        .func-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+        
+        .input-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #cbd5e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .calculate-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+        
+        .results {
+            margin-top: 25px;
+            padding: 20px;
+            background: white;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .limit-result {
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            color: #2d3748;
+        }
+        
+        .limit-expression {
+            font-family: 'Courier New', monospace;
+            background: #edf2f7;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            color: #2d3748;
+        }
+        
+        .function-info {
+            color: #4a5568;
+            font-style: italic;
             margin-bottom: 10px;
         }
         
-        .page-title p {
-            font-size: 1.1rem;
-            color: #666;
-            max-width: 800px;
-            margin: 0 auto;
+        .warning {
+            color: #e53e3e;
+            background: #fff5f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+            border-left: 3px solid #e53e3e;
         }
         
-        /* ===== TABS SECTION ===== */
-        .tabs-container {
-            background-color: white;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        .function-examples {
+            margin-top: 20px;
+            font-size: 0.9em;
+            color: #718096;
+        }
+        
+        #graph {
+            width: 100%;
+            height: 500px;
+            border-radius: 10px;
             overflow: hidden;
         }
         
-        .tabs-header {
+        .graph-controls {
             display: flex;
-            background-color: #f0f0f0;
-            border-bottom: 1px solid #ddd;
-            overflow-x: auto;
-        }
-        
-        .tab-button {
-            padding: 18px 30px;
-            background-color: transparent;
-            border: none;
-            font-size: 1.1rem;
-            font-weight: 600;
-            color: #555;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            white-space: nowrap;
-            border-right: 1px solid #ddd;
-            position: relative;
-        }
-        
-        .tab-button:hover {
-            background-color: #FFE5CC;
-            color: #FF8C00;
-        }
-        
-        .tab-button.active {
-            background-color: white;
-            color: #FF8C00;
-            border-bottom: 3px solid #FF8C00;
-        }
-        
-        .tab-button i {
-            margin-right: 10px;
-            font-size: 1.2rem;
-        }
-        
-        .tab-content {
-            padding: 40px;
-            min-height: 400px;
-        }
-        
-        .tab-pane {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .tab-pane.active {
-            display: block;
-        }
-        
-        .tab-pane h2 {
-            color: #FF8C00;
-            margin-bottom: 20px;
-            font-size: 1.8rem;
-            border-bottom: 2px solid #FFE5CC;
-            padding-bottom: 10px;
-        }
-        
-        .tab-pane h3 {
-            color: #333;
-            margin: 20px 0 15px;
-            font-size: 1.3rem;
-        }
-        
-        .tab-pane p {
-            margin-bottom: 15px;
-            line-height: 1.7;
-            font-size: 1.05rem;
-        }
-        
-        .tab-pane ul, .tab-pane ol {
-            margin-left: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .tab-pane li {
-            margin-bottom: 10px;
-        }
-        
-        /* ===== BUTTON STYLES ===== */
-        .btn {
-            background-color: #FF8C00;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            font-size: 1.1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: background-color 0.3s;
-        }
-        
-        .btn:hover {
-            background-color: #e67e00;
-        }
-        
-        .btn-secondary {
-            background-color: #4CAF50;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #3d8b40;
-        }
-        
-        /* ===== FOOTER ===== */
-        .footer {
-            background-color: #333;
-            color: white;
-            text-align: center;
-            padding: 20px 0;
-            margin-top: 40px;
-        }
-        
-        .footer p {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        
-        /* ===== ADDITIONAL STYLES ===== */
-        .sample-test {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-        
-        .simulation-area {
-            background-color: #f0f0f0;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 25px;
-            text-align: center;
-        }
-        
-        .simulation-header {
-            background-color: #333;
-            color: white;
-            padding: 10px;
-            border-radius: 6px;
-            margin-bottom: 15px;
-            font-weight: bold;
-        }
-        
-        .simulation-view {
-            height: 300px;
-            background-color: #e0e0e0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 6px;
-            margin-bottom: 20px;
-        }
-        
-        .placeholder-content {
-            text-align: center;
-        }
-        
-        .placeholder-content i {
-            font-size: 60px;
-            color: #666;
-            margin-bottom: 15px;
-        }
-        
-        .simulation-controls {
-            display: flex;
-            justify-content: space-between;
-            flex-wrap: wrap;
             gap: 10px;
+            margin-top: 15px;
         }
         
-        .sim-btn {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
+        .graph-btn {
             flex: 1;
-        }
-        
-        .sim-btn:hover {
-            opacity: 0.9;
-        }
-        
-        .start-btn { background-color: #4CAF50; }
-        .reset-btn { background-color: #2196F3; }
-        .params-btn { background-color: #FF9800; }
-        .results-btn { background-color: #9C27B0; }
-        
-        .test-info {
-            background-color: #f0f7ff;
-            padding: 20px;
-            border-radius: 8px;
-            margin: 20px 0;
-        }
-        
-        .resource-link {
-            color: #FF8C00;
-            text-decoration: none;
-        }
-        
-        .resource-link:hover {
-            text-decoration: underline;
-        }
-        
-        .contributors-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 25px;
-        }
-        
-        .contributor-card {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            border-left: 4px solid #FF8C00;
-        }
-        
-        .contributor-card.faculty { border-left-color: #FF8C00; }
-        .contributor-card.developers { border-left-color: #4CAF50; }
-        .contributor-card.students { border-left-color: #2196F3; }
-        
-        .contributor-card h3 {
-            margin-bottom: 10px;
-        }
-        
-        .acknowledgement {
-            margin-top: 30px;
-            padding: 20px;
-            background-color: #FFF3E0;
-            border-radius: 8px;
-        }
-        
-        .feedback-form-container {
-            background-color: #f9f9f9;
-            padding: 25px;
-            border-radius: 8px;
-            margin-top: 20px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-        }
-        
-        .star-rating {
-            display: flex;
-            gap: 10px;
-            font-size: 24px;
-            margin: 10px 0;
-        }
-        
-        .star {
-            cursor: pointer;
-            color: #666;
-            transition: color 0.2s;
-        }
-        
-        textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 1rem;
-            resize: vertical;
-        }
-        
-        select {
-            width: 100%;
             padding: 10px;
-            border: 1px solid #ddd;
+            background: #edf2f7;
+            border: 2px solid #cbd5e0;
             border-radius: 6px;
-            font-size: 1rem;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
         }
         
-        .checkbox-group {
-            margin: 5px 0;
+        .graph-btn:hover {
+            background: #e2e8f0;
         }
         
-        .submit-feedback {
-            width: 100%;
-        }
-        
-        .feedback-note {
+        .footer {
+            text-align: center;
             margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            color: #718096;
+        }
+        
+        .function-description {
+            margin-top: 15px;
             padding: 15px;
-            background-color: #E8F5E9;
-            border-radius: 6px;
-        }
-        
-        .feedback-note i {
-            color: #4CAF50;
-            margin-right: 8px;
-        }
-        
-        /* ===== ANIMATIONS ===== */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* ===== RESPONSIVE DESIGN ===== */
-        @media (max-width: 992px) {
-            .header-container {
-                flex-direction: column;
-                text-align: center;
-            }
-            
-            .logo-container {
-                justify-content: center;
-                margin-bottom: 20px;
-            }
-            
-            .welcome-section {
-                text-align: center;
-                margin-top: 15px;
-            }
-            
-            .virtual-labs {
-                font-size: 1.8rem;
-            }
-            
-            .applied-sciences {
-                font-size: 1.5rem;
-            }
-        }
-        
-        @media (max-width: 768px) {
-            .tabs-header {
-                flex-wrap: wrap;
-            }
-            
-            .tab-button {
-                flex: 1 0 auto;
-                padding: 15px 20px;
-                font-size: 1rem;
-            }
-            
-            .tab-content {
-                padding: 25px;
-            }
-            
-            .page-title h1 {
-                font-size: 2rem;
-            }
-            
-            .simulation-controls {
-                flex-direction: column;
-            }
+            background: #ebf8ff;
+            border-radius: 8px;
+            border-left: 4px solid #4299e1;
         }
     </style>
 </head>
 <body>
-    <!-- HEADER SECTION -->
-    <header class="header">
-        <div class="header-container">
-            <div class="logo-container">
-                <div class="logo-placeholder">
-                    <i class="fas fa-university"></i>
-                </div>
-                <div class="institution-info">
-                    <div class="applied-sciences">Applied Sciences & Humanities</div>
-                    <div class="college-name">Pimpri Chinchwad College of Engineering</div>
-                    <div class="virtual-labs">Virtual Labs</div>
-                </div>
-            </div>
-            <div class="welcome-section">
-                <div class="welcome-text">Welcome Students!</div>
-                <div class="welcome-subtext">Explore, Learn and Experiment</div>
-            </div>
-        </div>
-    </header>
-
-    <!-- MAIN CONTENT -->
-    <main class="main-container">
-        <div class="page-title">
-            <h1>Virtual Laboratory Portal</h1>
-            <p>An interactive platform for conducting experiments, understanding concepts, and enhancing learning experience through virtual simulations.</p>
-        </div>
-
-        <!-- TABS SECTION -->
-        <div class="tabs-container">
-            <!-- TAB HEADERS -->
-            <div class="tabs-header">
-                <button class="tab-button active" data-tab="aim">
-                    <i class="fas fa-bullseye"></i> Aim
-                </button>
-                <button class="tab-button" data-tab="theory">
-                    <i class="fas fa-book"></i> Theory
-                </button>
-                <button class="tab-button" data-tab="pretest">
-                    <i class="fas fa-clipboard-check"></i> Pretest
-                </button>
-                <button class="tab-button" data-tab="simulation">
-                    <i class="fas fa-flask"></i> Simulation
-                </button>
-                <button class="tab-button" data-tab="posttest">
-                    <i class="fas fa-file-alt"></i> Posttest
-                </button>
-                <button class="tab-button" data-tab="references">
-                    <i class="fas fa-link"></i> References
-                </button>
-                <button class="tab-button" data-tab="contributors">
-                    <i class="fas fa-users"></i> Contributors
-                </button>
-                <button class="tab-button" data-tab="feedback">
-                    <i class="fas fa-comment-alt"></i> Feedback
-                </button>
-            </div>
-
-            <!-- TAB CONTENT AREA -->
-            <div class="tab-content">
+    <div class="container">
+        <header>
+            <h1>Limit Calculator with Graphical Representation</h1>
+            <p class="subtitle">Calculate limits of various functions at specific points with visual understanding</p>
+        </header>
+        
+        <div class="main-content">
+            <div class="input-section">
+                <h2>Function & Limit Point</h2>
                 
-                <!-- ===== AIM TAB ===== -->
-                <div id="aim" class="tab-pane active">
-                    <h2>Experiment Aim</h2>
-                    <p>The primary aim of this virtual lab is to provide students with a comprehensive understanding of key engineering and scientific concepts through interactive simulations.</p>
-                    
-                    <h3>Specific Objectives:</h3>
-                    <ul>
-                        <li>To find the limit of the function.</li>
-                        <li>To take function(f(x)) and limit(a) from the user to solve.</li>
-                        <li>To develop practical skills in a safe, controlled virtual environment</li>
-                        <li>To bridge the gap between theoretical knowledge and practical application</li>
-                        <li>To enhance problem-solving and analytical thinking abilities</li>
-                    </ul>
-                    
-                    <p>This virtual lab allows students to perform experiments that might be difficult, expensive, or time-consuming in a traditional laboratory setting.</p>
-                </div>
-
-                <!-- ===== THEORY TAB ===== -->
-                <div id="theory" class="tab-pane">
-                    <h2>Theoretical Background</h2>
-                    <p>This section covers the fundamental concepts and principles relevant to the experiments available in this virtual lab.</p>
-                    
-                    <h3>Core Concepts:</h3>
-                    <ol>
-                        <li><strong>A function is a mathematical rule</strong> that assigns one output to each input. It shows how one quantity depends on another and is usually written as f(x).</li>
-                        <li><strong>Functions are widely used</strong> to represent real-life relationships such as speed vs time, cost vs quantity, and temperature changes.</li>
-                        <li><strong>A limit describes the value</strong> that a function approaches as the input gets closer to a specific number. It helps us understand the behavior of a function near a point, even if the function is not defined at that point.</li>
-                        <li><strong>Functions and limits form the foundation</strong> of calculus and are essential for studying continuity, derivatives, and integrals in higher mathematics.</li>
-                        <li>Let's take example of sin(x)/x for understanding how the Simulation works:</li>
-                        <li><strong>Step 2: Check values approaching from left: f(0-ε)</strong></li>
-                        <li><strong>Step 3: Check values approaching from right: f(0+ε)</strong></li>
-                        <li><strong>Step 4: Both sides approach 0.999997</strong></li>
-                        <li><strong>Conclusion: lim(x → 0) sin(x)/x = 0.999997</strong></li>
-                    </ol>
-                    
-                    <p>The theory section is designed to provide students with the necessary background before they proceed to the practical simulations. Understanding these concepts will enhance the learning experience and help in interpreting experimental results accurately.</p>
-                </div>
-
-                <!-- ===== PRETEST TAB ===== -->
-                <div id="pretest" class="tab-pane">
-                    <h2>Pretest Assessment</h2>
-                    <p>Before starting the experiment, take this pretest to assess your current understanding of the topic.</p>
-                    
-                    <h3>Instructions:</h3>
-                    <ul>
-                        <li>The test consists of 10 multiple-choice questions</li>
-                        <li>You have 15 minutes to complete the test</li>
-                        <li>A score of 60% or above is required to proceed to the simulation</li>
-                        <li>Results are for self-assessment only and will not be recorded</li>
-                    </ul>
-                    
-                    <div class="sample-test">
-                        <h3>Sample Question:</h3>
-                        <p><strong>1. Which of the following best describes the principle behind this experiment?</strong></p>
-                        <div class="options">
-                            <p><input type="radio" name="sample-q" id="q1a"> <label for="q1a">Option A: Newton's First Law</label></p>
-                            <p><input type="radio" name="sample-q" id="q1b"> <label for="q1b">Option B: Thermodynamic Principles</label></p>
-                            <p><input type="radio" name="sample-q" id="q1c"> <label for="q1c">Option C: Conservation of Energy</label></p>
-                            <p><input type="radio" name="sample-q" id="q1d"> <label for="q1d">Option D: Electromagnetic Induction</label></p>
-                        </div>
-                    </div>
-                    
-                    <button class="btn pretest-btn">
-                        <i class="fas fa-play-circle"></i> Start Pretest
-                    </button>
-                </div>
-
-                <!-- ===== SIMULATION TAB ===== -->
-                <div id="simulation" class="tab-pane">
-                    <h2>Virtual Simulation</h2>
-                    <p>This interactive simulation allows you to perform experiments in a virtual environment.</p>
-                    
-                    <div class="simulation-area">
-                        <div class="simulation-header">
-                            Virtual Simulation Area
-                        </div>
-                        <div class="simulation-view">
-                            <div class="placeholder-content">
-                                <i class="fas fa-flask"></i>
-                                <p>Interactive simulation environment will load here</p>
-                                <p>Controls and parameters can be adjusted in this area</p>
-                            </div>
-                        </div>
-                        
-                        <div class="simulation-controls">
-                            <button class="sim-btn start-btn">
-                                <i class="fas fa-play"></i> Start Simulation
-                            </button>
-                            <button class="sim-btn reset-btn">
-                                <i class="fas fa-redo"></i> Reset
-                            </button>
-                            <button class="sim-btn params-btn">
-                                <i class="fas fa-sliders-h"></i> Adjust Parameters
-                            </button>
-                            <button class="sim-btn results-btn">
-                                <i class="fas fa-chart-line"></i> View Results
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <h3>Simulation Features:</h3>
-                    <ul>
-                        <li>Interactive 3D models of laboratory equipment</li>
-                        <li>Real-time data collection and visualization</li>
-                        <li>Adjustable experimental parameters</li>
-                        <li>Step-by-step guided procedure</li>
-                        <li>Instant feedback on experimental setup</li>
-                    </ul>
-                </div>
-
-                <!-- ===== POSTTEST TAB ===== -->
-                <div id="posttest" class="tab-pane">
-                    <h2>Posttest Assessment</h2>
-                    <p>After completing the simulation, take this posttest to evaluate your understanding of the concepts.</p>
-                    
-                    <div class="test-info">
-                        <h3>Test Information:</h3>
-                        <ul>
-                            <li><strong>Duration:</strong> 20 minutes</li>
-                            <li><strong>Question Types:</strong> Multiple choice, short answer, and analysis questions</li>
-                            <li><strong>Passing Score:</strong> 70%</li>
-                            <li><strong>Attempts Allowed:</strong> 2</li>
-                        </ul>
-                    </div>
-                    
-                    <p>The posttest is designed to assess how well you have understood the experiment and its underlying principles. It includes questions on:</p>
-                    <ol>
-                        <li>Experimental procedure and methodology</li>
-                        <li>Data analysis and interpretation</li>
-                        <li>Theoretical concepts applied in the experiment</li>
-                        <li>Real-world applications of the findings</li>
-                    </ol>
-                    
-                    <button class="btn posttest-btn">
-                        <i class="fas fa-clipboard-list"></i> Begin Posttest
-                    </button>
-                </div>
-
-                <!-- ===== REFERENCES TAB ===== -->
-                <div id="references" class="tab-pane">
-                    <h2>References & Further Reading</h2>
-                    <p>This section provides additional resources for deepening your understanding of the topic.</p>
-                    
-                    <h3>Recommended Textbooks:</h3>
-                    <ul>
-                        <li>Author A. (Year). <em>Title of Textbook</em>. Publisher.</li>
-                        <li>Author B. (Year). <em>Title of Textbook</em>. Publisher.</li>
-                        <li>Author C. (Year). <em>Title of Textbook</em>. Publisher.</li>
-                    </ul>
-                    
-                    <h3>Research Papers:</h3>
-                    <ul>
-                        <li>Researcher X et al. (Year). "Title of Paper". <em>Journal Name</em>, Volume(Issue), Pages.</li>
-                        <li>Researcher Y et al. (Year). "Title of Paper". <em>Journal Name</em>, Volume(Issue), Pages.</li>
-                    </ul>
-                    
-                    <h3>Online Resources:</h3>
-                    <ul>
-                        <li><a href="#" class="resource-link">Interactive Tutorial on Topic</a> - Online learning platform</li>
-                        <li><a href="#" class="resource-link">Video Lectures</a> - University lecture series</li>
-                        <li><a href="#" class="resource-link">Virtual Lab Repository</a> - Collection of similar experiments</li>
-                    </ul>
-                    
-                    <h3>Additional Materials:</h3>
-                    <p>For further exploration, consider reviewing the following:</p>
-                    <ul>
-                        <li>Industry white papers on practical applications</li>
-                        <li>Case studies from real-world scenarios</li>
-                        <li>Advanced simulation software for extended experiments</li>
-                    </ul>
-                </div>
-
-                <!-- ===== CONTRIBUTORS TAB ===== -->
-                <div id="contributors" class="tab-pane">
-                    <h2>Contributors</h2>
-                    <p>This virtual lab was developed through the collaborative efforts of the following individuals and departments.</p>
-                    
-                    <div class="contributors-grid">
-                        <div class="contributor-card faculty">
-                            <h3>Faculty Coordinators</h3>
-                            <ul>
-                                <li>Dr. Sanjay Sharma</li>
-                                <li>Prof. Meena Patel</li>
-                                <li>Dr. Rajesh Kumar</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="contributor-card developers">
-                            <h3>Development Team</h3>
-                            <ul>
-                                <li>Amit Deshmukh (Lead Developer)</li>
-                                <li>Priya Singh (UI/UX Designer)</li>
-                                <li>Rahul Verma (Content Developer)</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="contributor-card students">
-                            <h3>Student Contributors</h3>
-                            <ul>
-                                <li>Neha Gupta (Testing)</li>
-                                <li>Arun Jadhav (Documentation)</li>
-                                <li>Sneha Reddy (Content Review)</li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div class="acknowledgement">
-                        <h3>Acknowledgements</h3>
-                        <p>We extend our gratitude to the PCCOE administration, the Applied Sciences & Humanities department, and all the students who provided valuable feedback during the development of this virtual lab platform.</p>
-                    </div>
-                </div>
-
-                <!-- ===== FEEDBACK TAB ===== -->
-                <div id="feedback" class="tab-pane">
-                    <h2>Feedback Form</h2>
-                    <p>Your feedback is valuable to us. Please share your experience with this virtual lab to help us improve.</p>
-                    
-                    <div class="feedback-form-container">
-                        <form id="feedbackForm">
-                            <div class="form-group">
-                                <label for="rating">Overall Rating:</label>
-                                <div class="star-rating">
-                                    <span class="star" data-value="1">☆</span>
-                                    <span class="star" data-value="2">☆</span>
-                                    <span class="star" data-value="3">☆</span>
-                                    <span class="star" data-value="4">☆</span>
-                                    <span class="star" data-value="5">☆</span>
-                                </div>
-                                <input type="hidden" id="ratingValue" name="rating" value="0">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="comments">Comments/Suggestions:</label>
-                                <textarea id="comments" name="comments" rows="5" placeholder="Please share your experience, suggestions for improvement, or any issues you encountered..."></textarea>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Which section did you find most useful?</label>
-                                <div class="checkbox-group">
-                                    <input type="checkbox" id="useful1" name="useful" value="theory">
-                                    <label for="useful1"> Theory</label>
-                                </div>
-                                <div class="checkbox-group">
-                                    <input type="checkbox" id="useful2" name="useful" value="simulation">
-                                    <label for="useful2"> Simulation</label>
-                                </div>
-                                <div class="checkbox-group">
-                                    <input type="checkbox" id="useful3" name="useful" value="assessments">
-                                    <label for="useful3"> Assessments (Pre/Post test)</label>
-                                </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="recommend">Would you recommend this virtual lab to other students?</label>
-                                <select id="recommend" name="recommend">
-                                    <option value="">Select an option</option>
-                                    <option value="yes">Yes, definitely</option>
-                                    <option value="maybe">Maybe</option>
-                                    <option value="no">No</option>
-                                </select>
-                            </div>
-                            
-                            <button type="submit" class="btn submit-feedback">
-                                <i class="fas fa-paper-plane"></i> Submit Feedback
-                            </button>
-                        </form>
-                    </div>
-                    
-                    <div class="feedback-note">
-                        <p><i class="fas fa-info-circle"></i> Your feedback will be used to improve the virtual lab experience for future students. All responses are anonymous.</p>
+                <div class="function-selector">
+                    <p>Select Function Type:</p>
+                    <div class="function-buttons" id="functionButtons">
+                        <button class="func-btn active" data-type="polynomial">Polynomial</button>
+                        <button class="func-btn" data-type="rational">Rational</button>
+                        <button class="func-btn" data-type="trigonometric">Trigonometric</button>
+                        <button class="func-btn" data-type="exponential">Exponential</button>
+                        <button class="func-btn" data-type="logarithmic">Logarithmic</button>
+                        <button class="func-btn" data-type="piecewise">Piecewise</button>
+                        <button class="func-btn" data-type="sqrt">Square Root</button>
+                        <button class="func-btn" data-type="absolute">Absolute</button>
                     </div>
                 </div>
                 
-            </div> <!-- End tab-content -->
-        </div> <!-- End tabs-container -->
-    </main>
-
-    <!-- FOOTER -->
-    <footer class="footer">
-        <p>© 2023 Pimpri Chinchwad College of Engineering - Virtual Labs. All rights reserved.</p>
-        <p>Applied Sciences & Humanities Department</p>
-    </footer>
+                <div class="input-group">
+                    <label for="functionInput">Function f(x):</label>
+                    <input type="text" id="functionInput" value="x^2 - 4" placeholder="Enter function expression, e.g., sin(x)/x">
+                    <div class="function-info" id="functionDescription">
+                        Polynomial function: Enter like x^2 - 4, 3*x^3 + 2*x^2 - x + 5
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <label for="limitPoint">Limit Point (x → a):</label>
+                    <input type="text" id="limitPoint" value="2" placeholder="Enter the point or 'inf' for infinity">
+                </div>
+                
+                <div class="input-group">
+                    <label for="direction">Approach Direction:</label>
+                    <select id="direction">
+                        <option value="both">Both Sides (Two-Sided Limit)</option>
+                        <option value="left">Left Side Only (x → a⁻)</option>
+                        <option value="right">Right Side Only (x → a⁺)</option>
+                    </select>
+                </div>
+                
+                <button class="calculate-btn" id="calculateBtn">Calculate Limit & Plot Graph</button>
+                
+                <div class="results" id="results" style="display: none;">
+                    <div class="limit-result" id="limitResult"></div>
+                    <div class="limit-expression" id="limitExpression"></div>
+                    <div id="limitDetails"></div>
+                    <div id="warningMessage"></div>
+                </div>
+                
+                <div class="function-examples">
+                    <p><strong>Examples:</strong></p>
+                    <p>Polynomial: x^2 - 4, 3*x^3 + 2*x - 1</p>
+                    <p>Rational: (x^2 - 4)/(x - 2), sin(x)/x</p>
+                    <p>Trigonometric: sin(x), cos(2*x), tan(x)</p>
+                    <p>Exponential: e^x, 2^x, exp(x^2)</p>
+                    <p>Logarithmic: log(x), ln(x+1), log(x, 2)</p>
+                </div>
+            </div>
+            
+            <div class="graph-section">
+                <h2>Graphical Representation</h2>
+                <div id="graph"></div>
+                <div class="graph-controls">
+                    <button class="graph-btn" id="zoomIn">Zoom In</button>
+                    <button class="graph-btn" id="zoomOut">Zoom Out</button>
+                    <button class="graph-btn" id="resetView">Reset View</button>
+                </div>
+                <div class="function-description">
+                    <p><strong>Understanding the Graph:</strong></p>
+                    <p>• The function is shown in blue</p>
+                    <p>• Limit point is marked with a red dashed line</p>
+                    <p>• Hole or undefined point is shown as a red circle</p>
+                    <p>• Approach from left/right shown with arrows</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>Limit Calculator | Works entirely in your browser | Uses Math.js for calculations</p>
+        </div>
+    </div>
 
     <script>
-        // ===== TAB SWITCHING FUNCTIONALITY =====
-        document.addEventListener('DOMContentLoaded', function() {
-            const tabButtons = document.querySelectorAll('.tab-button');
-            const tabPanes = document.querySelectorAll('.tab-pane');
-            
-            tabButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
-                    
-                    // Remove active class from all buttons and panes
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    tabPanes.forEach(pane => pane.classList.remove('active'));
-                    
-                    // Add active class to clicked button and corresponding pane
-                    this.classList.add('active');
-                    document.getElementById(tabId).classList.add('active');
-                });
-            });
-            
-            // ===== STAR RATING FOR FEEDBACK =====
-            const stars = document.querySelectorAll('.star');
-            const ratingValue = document.getElementById('ratingValue');
-            
-            stars.forEach(star => {
-                star.addEventListener('click', function() {
-                    const value = this.getAttribute('data-value');
-                    ratingValue.value = value;
-                    
-                    // Update star display
-                    stars.forEach(s => {
-                        if (s.getAttribute('data-value') <= value) {
-                            s.innerHTML = '★';
-                            s.style.color = '#FF8C00';
-                        } else {
-                            s.innerHTML = '☆';
-                            s.style.color = '#666';
-                        }
-                    });
-                });
-                
-                // Add hover effect
-                star.addEventListener('mouseover', function() {
-                    const value = this.getAttribute('data-value');
-                    
-                    stars.forEach(s => {
-                        if (s.getAttribute('data-value') <= value) {
-                            s.style.color = '#FF8C00';
-                        } else {
-                            s.style.color = '#666';
-                        }
-                    });
+        // Initialize variables
+        let currentFunctionType = 'polynomial';
+        let currentFunction = 'x^2 - 4';
+        let currentLimitPoint = 2;
+        let currentPlot = null;
+        let currentRange = 3;
+        
+        // Function descriptions for each type
+        const functionDescriptions = {
+            polynomial: "Polynomial function: Enter like x^2 - 4, 3*x^3 + 2*x^2 - x + 5",
+            rational: "Rational function (ratio of polynomials): Enter like (x^2 - 4)/(x - 2), 1/x",
+            trigonometric: "Trigonometric function: Enter like sin(x), cos(2*x), tan(x), sin(x)/x",
+            exponential: "Exponential function: Enter like e^x, 2^x, exp(x^2), 10^(x-1)",
+            logarithmic: "Logarithmic function: Enter like log(x), ln(x+1), log(x, 2) (log base 2)",
+            piecewise: "Piecewise function: Use piecewise format: (x<0 ? -x : x^2) for absolute-like",
+            sqrt: "Square root function: Enter like sqrt(x), sqrt(x^2+1), (x)^(1/2)",
+            absolute: "Absolute value function: Enter like abs(x), abs(x-2), abs(sin(x))"
+        };
+        
+        // Default functions for each type
+        const defaultFunctions = {
+            polynomial: "x^2 - 4",
+            rational: "(x^2 - 4)/(x - 2)",
+            trigonometric: "sin(x)/x",
+            exponential: "e^x",
+            logarithmic: "log(x+1)",
+            piecewise: "(x<0 ? -x : x^2)",
+            sqrt: "sqrt(x)",
+            absolute: "abs(x-2)"
+        };
+        
+        // Setup function buttons
+        document.querySelectorAll('.func-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                document.querySelectorAll('.func-btn').forEach(btn => {
+                    btn.classList.remove('active');
                 });
                 
-                star.addEventListener('mouseout', function() {
-                    const currentRating = ratingValue.value;
-                    
-                    stars.forEach(s => {
-                        if (s.getAttribute('data-value') <= currentRating) {
-                            s.style.color = '#FF8C00';
-                        } else {
-                            s.style.color = '#666';
-                        }
-                    });
-                });
-            });
-            
-            // ===== FEEDBACK FORM SUBMISSION =====
-            const feedbackForm = document.getElementById('feedbackForm');
-            feedbackForm.addEventListener('submit', function(e) {
-                e.preventDefault();
+                // Add active class to clicked button
+                this.classList.add('active');
                 
-                // Simple validation
-                if (ratingValue.value === '0') {
-                    alert('Please provide a rating before submitting.');
-                    return;
-                }
+                // Update current function type
+                currentFunctionType = this.getAttribute('data-type');
                 
-                // In a real application, you would send the form data to a server
-                // For this example, we'll just show a confirmation message
-                alert('Thank you for your feedback! Your response has been recorded.');
-                feedbackForm.reset();
+                // Update function input with default for this type
+                document.getElementById('functionInput').value = defaultFunctions[currentFunctionType];
                 
-                // Reset stars
-                stars.forEach(s => {
-                    s.innerHTML = '☆';
-                    s.style.color = '#666';
-                });
-                ratingValue.value = '0';
-            });
-            
-            // ===== PRETEST BUTTON FUNCTIONALITY =====
-            document.querySelector('.pretest-btn').addEventListener('click', function() {
-                alert('Starting pretest... This would launch the test interface in a real application.');
-            });
-            
-            // ===== POSTTEST BUTTON FUNCTIONALITY =====
-            document.querySelector('.posttest-btn').addEventListener('click', function() {
-                alert('Starting posttest... This would launch the test interface in a real application.');
-            });
-            
-            // ===== SIMULATION BUTTONS FUNCTIONALITY =====
-            const simButtons = document.querySelectorAll('.sim-btn');
-            simButtons.forEach(button => {
-                button.addEventListener('click', function() {
-                    const action = this.textContent.trim();
-                    alert(`${action} button clicked. This would trigger the corresponding simulation action.`);
-                });
+                // Update function description
+                document.getElementById('functionDescription').textContent = functionDescriptions[currentFunctionType];
+                
+                // Update current function
+                currentFunction = defaultFunctions[currentFunctionType];
             });
         });
+        
+        // Update current function when input changes
+        document.getElementById('functionInput').addEventListener('input', function() {
+            currentFunction = this.value;
+        });
+        
+        // Calculate button click handler
+        document.getElementById('calculateBtn').addEventListener('click', calculateLimit);
+        
+        // Graph control buttons
+        document.getElementById('zoomIn').addEventListener('click', () => zoomGraph(0.7));
+        document.getElementById('zoomOut').addEventListener('click', () => zoomGraph(1.3));
+        document.getElementById('resetView').addEventListener('click', resetGraphView);
+        
+        // Also calculate when Enter is pressed in inputs
+        document.getElementById('functionInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculateLimit();
+        });
+        
+        document.getElementById('limitPoint').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculateLimit();
+        });
+        
+        // Initialize with a calculation
+        window.addEventListener('load', calculateLimit);
+        
+        // Main calculation function
+        function calculateLimit() {
+            try {
+                // Get inputs
+                const funcStr = document.getElementById('functionInput').value;
+                const limitPointStr = document.getElementById('limitPoint').value;
+                const direction = document.getElementById('direction').value;
+                
+                // Parse limit point
+                let limitPoint;
+                if (limitPointStr.toLowerCase() === 'inf' || limitPointStr === '∞') {
+                    limitPoint = Infinity;
+                } else if (limitPointStr.toLowerCase() === '-inf' || limitPointStr === '-∞') {
+                    limitPoint = -Infinity;
+                } else {
+                    limitPoint = parseFloat(limitPointStr);
+                    if (isNaN(limitPoint)) {
+                        throw new Error('Invalid limit point');
+                    }
+                }
+                
+                // Update current values
+                currentFunction = funcStr;
+                currentLimitPoint = limitPoint;
+                
+                // Calculate the limit
+                const limitResult = computeLimit(funcStr, limitPoint, direction);
+                
+                // Display results
+                displayResults(funcStr, limitPoint, direction, limitResult);
+                
+                // Plot the graph
+                plotFunction(funcStr, limitPoint, direction, limitResult);
+                
+            } catch (error) {
+                console.error('Error calculating limit:', error);
+                document.getElementById('results').style.display = 'block';
+                document.getElementById('limitResult').innerHTML = '<span style="color: #e53e3e;">Error:</span> ' + error.message;
+                document.getElementById('limitExpression').textContent = '';
+                document.getElementById('limitDetails').innerHTML = '';
+                document.getElementById('warningMessage').innerHTML = '';
+                
+                // Show error in graph area
+                document.getElementById('graph').innerHTML = 
+                    `<div style="color: #e53e3e; text-align: center; padding: 50px;">
+                        <h3>Error calculating limit</h3>
+                        <p>${error.message}</p>
+                        <p>Please check your input and try again.</p>
+                    </div>`;
+            }
+        }
+        
+        // Compute the limit using numerical approximation
+        function computeLimit(funcStr, a, direction) {
+            try {
+                console.log(`Computing limit for ${funcStr} as x -> ${a} from ${direction}`);
+                
+                // For infinity limits
+                if (Math.abs(a) === Infinity) {
+                    return computeLimitAtInfinity(funcStr, a);
+                }
+                
+                // Try to evaluate at the point directly first
+                let directValue;
+                try {
+                    // Create a safe evaluation function
+                    const expr = math.compile(funcStr);
+                    directValue = expr.evaluate({x: a});
+                    
+                    console.log(`Direct evaluation at x=${a}: ${directValue}`);
+                    
+                    // Check if it's a finite number
+                    if (typeof directValue === 'number' && isFinite(directValue)) {
+                        return {
+                            value: directValue,
+                            exists: true,
+                            type: 'finite',
+                            leftValue: directValue,
+                            rightValue: directValue,
+                            directEvaluation: true
+                        };
+                    }
+                } catch (e) {
+                    console.log(`Direct evaluation failed: ${e.message}`);
+                    // Direct evaluation failed, continue with limit calculation
+                }
+                
+                // Numerical approach to the limit
+                const h = 1e-8; // Small step for numerical derivatives
+                let leftValue = null;
+                let rightValue = null;
+                
+                // Create compiled expression for better performance
+                const expr = math.compile(funcStr);
+                
+                // Calculate from left side
+                if (direction === 'both' || direction === 'left') {
+                    const yValues = [];
+                    
+                    // Approach from left with decreasing distances
+                    for (let i = 1; i <= 10; i++) {
+                        const delta = Math.pow(0.5, i) * 0.1;
+                        const x = a - delta;
+                        
+                        try {
+                            const y = expr.evaluate({x: x});
+                            
+                            if (typeof y === 'number' && isFinite(y)) {
+                                yValues.push(y);
+                            }
+                        } catch (e) {
+                            // Skip this point if evaluation fails
+                        }
+                    }
+                    
+                    if (yValues.length > 0) {
+                        // Use average of last few points to estimate limit
+                        const n = Math.min(5, yValues.length);
+                        const lastYValues = yValues.slice(-n);
+                        leftValue = lastYValues.reduce((sum, val) => sum + val, 0) / n;
+                        console.log(`Left approach value: ${leftValue}`);
+                    }
+                }
+                
+                // Calculate from right side
+                if (direction === 'both' || direction === 'right') {
+                    const yValues = [];
+                    
+                    // Approach from right with decreasing distances
+                    for (let i = 1; i <= 10; i++) {
+                        const delta = Math.pow(0.5, i) * 0.1;
+                        const x = a + delta;
+                        
+                        try {
+                            const y = expr.evaluate({x: x});
+                            
+                            if (typeof y === 'number' && isFinite(y)) {
+                                yValues.push(y);
+                            }
+                        } catch (e) {
+                            // Skip this point if evaluation fails
+                        }
+                    }
+                    
+                    if (yValues.length > 0) {
+                        // Use average of last few points to estimate limit
+                        const n = Math.min(5, yValues.length);
+                        const lastYValues = yValues.slice(-n);
+                        rightValue = lastYValues.reduce((sum, val) => sum + val, 0) / n;
+                        console.log(`Right approach value: ${rightValue}`);
+                    }
+                }
+                
+                // Determine if limit exists and its value
+                let exists = false;
+                let value = null;
+                let type = 'undefined';
+                
+                console.log(`Left value: ${leftValue}, Right value: ${rightValue}`);
+                
+                if (direction === 'both') {
+                    // Check if both one-sided limits exist and are equal
+                    if (leftValue !== null && rightValue !== null) {
+                        const tolerance = 1e-6;
+                        if (Math.abs(leftValue - rightValue) < tolerance) {
+                            exists = true;
+                            value = (leftValue + rightValue) / 2;
+                            type = 'finite';
+                        } else {
+                            exists = false;
+                            type = 'jump';
+                        }
+                    } else if (leftValue !== null) {
+                        exists = true;
+                        value = leftValue;
+                        type = 'left-only';
+                    } else if (rightValue !== null) {
+                        exists = true;
+                        value = rightValue;
+                        type = 'right-only';
+                    } else {
+                        exists = false;
+                        type = 'undefined';
+                    }
+                } else if (direction === 'left') {
+                    exists = leftValue !== null;
+                    value = leftValue;
+                    type = exists ? 'left' : 'undefined';
+                } else if (direction === 'right') {
+                    exists = rightValue !== null;
+                    value = rightValue;
+                    type = exists ? 'right' : 'undefined';
+                }
+                
+                // Check for infinite limits (vertical asymptotes)
+                if ((direction === 'both' || direction === 'left') && leftValue !== null && Math.abs(leftValue) > 1e6) {
+                    type = 'infinite';
+                    exists = false;
+                }
+                
+                if ((direction === 'both' || direction === 'right') && rightValue !== null && Math.abs(rightValue) > 1e6) {
+                    type = 'infinite';
+                    exists = false;
+                }
+                
+                console.log(`Final result: exists=${exists}, value=${value}, type=${type}`);
+                
+                return {
+                    value: value,
+                    exists: exists,
+                    type: type,
+                    leftValue: leftValue,
+                    rightValue: rightValue,
+                    directEvaluation: false
+                };
+                
+            } catch (error) {
+                console.error('Error in computeLimit:', error);
+                throw new Error(`Failed to compute limit: ${error.message}`);
+            }
+        }
+        
+        // Compute limit at infinity
+        function computeLimitAtInfinity(funcStr, a) {
+            try {
+                console.log(`Computing limit at infinity for ${funcStr} as x -> ${a}`);
+                
+                // Create compiled expression
+                const expr = math.compile(funcStr);
+                
+                // Evaluate at large values
+                const largeValue = 1e6;
+                const veryLargeValue = 1e9;
+                
+                let y1, y2;
+                try {
+                    if (a === Infinity) {
+                        y1 = expr.evaluate({x: largeValue});
+                        y2 = expr.evaluate({x: veryLargeValue});
+                    } else { // -Infinity
+                        y1 = expr.evaluate({x: -largeValue});
+                        y2 = expr.evaluate({x: -veryLargeValue});
+                    }
+                } catch (e) {
+                    throw new Error('Cannot evaluate function at large values');
+                }
+                
+                console.log(`Values at large points: y1=${y1}, y2=${y2}`);
+                
+                // Check if values are finite
+                if (typeof y1 !== 'number' || typeof y2 !== 'number' || !isFinite(y1) || !isFinite(y2)) {
+                    return {
+                        value: null,
+                        exists: false,
+                        type: 'undefined',
+                        leftValue: null,
+                        rightValue: null,
+                        directEvaluation: false
+                    };
+                }
+                
+                // Check if approaching a finite value
+                const tolerance = 1e-3;
+                if (Math.abs(y1 - y2) / (Math.abs(y1) + 1e-10) < tolerance) {
+                    const avgValue = (y1 + y2) / 2;
+                    return {
+                        value: avgValue,
+                        exists: true,
+                        type: 'finite',
+                        leftValue: avgValue,
+                        rightValue: avgValue,
+                        directEvaluation: false
+                    };
+                }
+                
+                // Check for infinite limits at infinity
+                if (Math.abs(y1) > 1e6 && Math.abs(y2) > 1e6 && y1 * y2 > 0) {
+                    return {
+                        value: y1 > 0 ? Infinity : -Infinity,
+                        exists: false,
+                        type: 'infinite',
+                        leftValue: y1,
+                        rightValue: y2,
+                        directEvaluation: false
+                    };
+                }
+                
+                // No limit exists
+                return {
+                    value: null,
+                    exists: false,
+                    type: 'oscillating',
+                    leftValue: y1,
+                    rightValue: y2,
+                    directEvaluation: false
+                };
+                
+            } catch (error) {
+                console.error('Error in computeLimitAtInfinity:', error);
+                throw new Error(`Failed to compute limit at infinity: ${error.message}`);
+            }
+        }
+        
+        // Display results
+        function displayResults(funcStr, a, direction, result) {
+            const resultsDiv = document.getElementById('results');
+            const limitResultDiv = document.getElementById('limitResult');
+            const limitExpressionDiv = document.getElementById('limitExpression');
+            const limitDetailsDiv = document.getElementById('limitDetails');
+            const warningDiv = document.getElementById('warningMessage');
+            
+            resultsDiv.style.display = 'block';
+            
+            // Create limit expression
+            let expression = `lim`;
+            if (direction === 'left') {
+                expression += `ₓ→${formatNumber(a)}⁻`;
+            } else if (direction === 'right') {
+                expression += `ₓ→${formatNumber(a)}⁺`;
+            } else {
+                expression += `ₓ→${formatNumber(a)}`;
+            }
+            expression += ` ${funcStr}`;
+            
+            limitExpressionDiv.textContent = expression;
+            
+            // Display result
+            if (result.exists) {
+                limitResultDiv.innerHTML = `<span style="color: #38a169;">Limit exists:</span> ${formatNumber(result.value)}`;
+                
+                let details = `<p>Two-sided limit: ${result.type === 'finite' ? '✓' : '✗'}</p>`;
+                
+                if (direction === 'both' || direction === 'left') {
+                    details += `<p>Left-hand limit: ${formatNumber(result.leftValue)}</p>`;
+                }
+                
+                if (direction === 'both' || direction === 'right') {
+                    details += `<p>Right-hand limit: ${formatNumber(result.rightValue)}</p>`;
+                }
+                
+                if (result.directEvaluation) {
+                    details += `<p>Direct evaluation at x = ${formatNumber(a)} is possible</p>`;
+                } else {
+                    details += `<p>Computed via numerical approximation</p>`;
+                }
+                
+                limitDetailsDiv.innerHTML = details;
+                warningDiv.innerHTML = '';
+                
+            } else {
+                let message = '';
+                let color = '#e53e3e';
+                
+                switch (result.type) {
+                    case 'jump':
+                        message = `Limit does not exist (jump discontinuity)<br>`;
+                        message += `Left-hand limit: ${formatNumber(result.leftValue)}<br>`;
+                        message += `Right-hand limit: ${formatNumber(result.rightValue)}`;
+                        break;
+                    case 'infinite':
+                        message = `Limit is infinite (vertical asymptote)<br>`;
+                        color = '#d69e2e';
+                        if (result.value === Infinity) {
+                            message += `Function approaches ∞ as x → ${formatNumber(a)}`;
+                        } else if (result.value === -Infinity) {
+                            message += `Function approaches -∞ as x → ${formatNumber(a)}`;
+                        }
+                        break;
+                    case 'oscillating':
+                        message = `Limit does not exist (oscillating behavior)`;
+                        break;
+                    default:
+                        message = `Limit does not exist`;
+                }
+                
+                limitResultDiv.innerHTML = `<span style="color: ${color};">${message.split('<br>')[0]}</span>`;
+                limitDetailsDiv.innerHTML = message;
+                
+                // Add warning about undefined points
+                warningDiv.innerHTML = `<div class="warning">
+                    <strong>Note:</strong> The function may be undefined at x = ${formatNumber(a)}. 
+                    The graph will show a hole or asymptote at this point.
+                </div>`;
+            }
+        }
+        
+        // Plot the function and limit
+        function plotFunction(funcStr, a, direction, limitResult) {
+            try {
+                console.log(`Plotting function: ${funcStr}`);
+                
+                // Determine x range based on limit point
+                let xMin, xMax;
+                if (Math.abs(a) === Infinity) {
+                    xMin = -10;
+                    xMax = 10;
+                } else {
+                    xMin = a - currentRange;
+                    xMax = a + currentRange;
+                }
+                
+                // Generate x values
+                const numPoints = 500;
+                const xValues = [];
+                for (let i = 0; i <= numPoints; i++) {
+                    xValues.push(xMin + (xMax - xMin) * i / numPoints);
+                }
+                
+                // Generate y values, handling undefined points
+                const yValues = [];
+                const undefinedPoints = [];
+                
+                // Create compiled expression
+                const expr = math.compile(funcStr);
+                
+                for (let i = 0; i < xValues.length; i++) {
+                    const x = xValues[i];
+                    try {
+                        const y = expr.evaluate({x: x});
+                        
+                        if (typeof y === 'number' && isFinite(y)) {
+                            yValues.push(y);
+                        } else {
+                            yValues.push(null);
+                            // Check if this is near the limit point
+                            if (Math.abs(x - a) < 0.01) {
+                                undefinedPoints.push(x);
+                            }
+                        }
+                    } catch (e) {
+                        yValues.push(null);
+                        // Check if this is near the limit point
+                        if (Math.abs(x - a) < 0.01) {
+                            undefinedPoints.push(x);
+                        }
+                    }
+                }
+                
+                // Filter out null values for min/max calculation
+                const validYValues = yValues.filter(y => y !== null);
+                if (validYValues.length === 0) {
+                    throw new Error('No valid y-values generated for the given range');
+                }
+                
+                // Create trace for the function
+                const trace1 = {
+                    x: xValues,
+                    y: yValues,
+                    mode: 'lines',
+                    name: `f(x) = ${funcStr}`,
+                    line: {color: '#667eea', width: 3},
+                    connectgaps: false
+                };
+                
+                // Create trace for the limit point vertical line
+                const trace2 = {
+                    x: [a, a],
+                    y: [Math.min(...validYValues), Math.max(...validYValues)],
+                    mode: 'lines',
+                    name: `x = ${formatNumber(a)}`,
+                    line: {color: '#e53e3e', width: 2, dash: 'dash'},
+                    showlegend: false
+                };
+                
+                // Create trace for left approach if applicable
+                const approachTraces = [];
+                if ((direction === 'both' || direction === 'left') && limitResult.leftValue !== null) {
+                    // Generate points approaching from left
+                    const leftX = [];
+                    const leftY = [];
+                    for (let delta = 0.5; delta > 0.01; delta *= 0.7) {
+                        const x = a - delta;
+                        try {
+                            const y = expr.evaluate({x: x});
+                            if (typeof y === 'number' && isFinite(y)) {
+                                leftX.push(x);
+                                leftY.push(y);
+                            }
+                        } catch (e) {
+                            // Skip
+                        }
+                    }
+                    
+                    if (leftX.length > 0) {
+                        approachTraces.push({
+                            x: leftX,
+                            y: leftY,
+                            mode: 'markers+lines',
+                            name: 'Approach from left',
+                            line: {color: '#38a169', width: 2},
+                            marker: {size: 8, symbol: 'arrow-left', color: '#38a169'}
+                        });
+                    }
+                }
+                
+                // Create trace for right approach if applicable
+                if ((direction === 'both' || direction === 'right') && limitResult.rightValue !== null) {
+                    // Generate points approaching from right
+                    const rightX = [];
+                    const rightY = [];
+                    for (let delta = 0.5; delta > 0.01; delta *= 0.7) {
+                        const x = a + delta;
+                        try {
+                            const y = expr.evaluate({x: x});
+                            if (typeof y === 'number' && isFinite(y)) {
+                                rightX.push(x);
+                                rightY.push(y);
+                            }
+                        } catch (e) {
+                            // Skip
+                        }
+                    }
+                    
+                    if (rightX.length > 0) {
+                        approachTraces.push({
+                            x: rightX,
+                            y: rightY,
+                            mode: 'markers+lines',
+                            name: 'Approach from right',
+                            line: {color: '#d69e2e', width: 2},
+                            marker: {size: 8, symbol: 'arrow-right', color: '#d69e2e'}
+                        });
+                    }
+                }
+                
+                // Create trace for limit value if it exists
+                const limitTraces = [];
+                if (limitResult.exists && limitResult.type === 'finite') {
+                    limitTraces.push({
+                        x: [xMin, xMax],
+                        y: [limitResult.value, limitResult.value],
+                        mode: 'lines',
+                        name: `Limit = ${formatNumber(limitResult.value)}`,
+                        line: {color: '#9f7aea', width: 2, dash: 'dot'},
+                        showlegend: false
+                    });
+                    
+                    // Add a point at the limit if direct evaluation worked
+                    if (limitResult.directEvaluation) {
+                        limitTraces.push({
+                            x: [a],
+                            y: [limitResult.value],
+                            mode: 'markers',
+                            name: `f(${formatNumber(a)})`,
+                            marker: {size: 12, color: '#9f7aea'},
+                            showlegend: false
+                        });
+                    } else {
+                        // Show a hole at the limit point
+                        limitTraces.push({
+                            x: [a],
+                            y: [limitResult.value],
+                            mode: 'markers',
+                            name: 'Limit value',
+                            marker: {
+                                size: 10,
+                                color: '#e53e3e',
+                                symbol: 'circle-open',
+                                line: {width: 2}
+                            },
+                            showlegend: false
+                        });
+                    }
+                }
+                
+                // Create trace for undefined points
+                const undefinedTraces = [];
+                if (undefinedPoints.length > 0) {
+                    undefinedTraces.push({
+                        x: undefinedPoints,
+                        y: new Array(undefinedPoints.length).fill(null),
+                        mode: 'markers',
+                        name: 'Undefined',
+                        marker: {
+                            size: 8,
+                            color: '#e53e3e',
+                            symbol: 'circle',
+                            line: {width: 2, color: '#e53e3e'}
+                        },
+                        showlegend: false
+                    });
+                }
+                
+                // Combine all traces
+                const allTraces = [trace1, trace2, ...approachTraces, ...limitTraces, ...undefinedTraces];
+                
+                // Layout configuration
+                const layout = {
+                    title: `Limit of f(x) = ${funcStr} as x → ${formatNumber(a)}`,
+                    xaxis: {
+                        title: 'x',
+                        range: [xMin, xMax],
+                        gridcolor: '#e2e8f0',
+                        zerolinecolor: '#cbd5e0'
+                    },
+                    yaxis: {
+                        title: 'f(x)',
+                        gridcolor: '#e2e8f0',
+                        zerolinecolor: '#cbd5e0'
+                    },
+                    plot_bgcolor: '#f7fafc',
+                    paper_bgcolor: '#f7fafc',
+                    showlegend: true,
+                    legend: {
+                        x: 1.05,
+                        y: 1,
+                        xanchor: 'left',
+                        yanchor: 'top',
+                        bgcolor: 'rgba(255, 255, 255, 0.8)',
+                        bordercolor: '#cbd5e0',
+                        borderwidth: 1
+                    },
+                    margin: {l: 60, r: 60, t: 60, b: 60}
+                };
+                
+                // Plot the graph
+                Plotly.newPlot('graph', allTraces, layout);
+                
+            } catch (error) {
+                console.error('Error plotting function:', error);
+                document.getElementById('graph').innerHTML = 
+                    `<div style="color: #e53e3e; text-align: center; padding: 50px;">
+                        <h3>Error plotting function</h3>
+                        <p>${error.message}</p>
+                        <p>Please check your function syntax.</p>
+                    </div>`;
+            }
+        }
+        
+        // Zoom graph
+        function zoomGraph(factor) {
+            currentRange *= factor;
+            calculateLimit();
+        }
+        
+        // Reset graph view
+        function resetGraphView() {
+            currentRange = 3;
+            calculateLimit();
+        }
+        
+        // Format number for display
+        function formatNumber(num) {
+            if (num === Infinity) return '∞';
+            if (num === -Infinity) return '-∞';
+            if (num === null || typeof num !== 'number' || isNaN(num)) return 'undefined';
+            
+            // Round to 6 decimal places for display
+            const rounded = Math.round(num * 1e6) / 1e6;
+            
+            // Use scientific notation for very small/large numbers
+            if (Math.abs(rounded) > 1e6 || (Math.abs(rounded) < 1e-6 && rounded !== 0)) {
+                return rounded.toExponential(4);
+            }
+            
+            // Remove trailing zeros
+            return parseFloat(rounded.toFixed(6)).toString();
+        }
     </script>
 </body>
 </html>
